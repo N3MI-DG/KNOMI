@@ -109,15 +109,13 @@ void lv_loop_moonraker_change_screen(void) {
         return;
     }
     if (moonraker_nozzle_is_heating()) {
-        lv_goto_busy_screen(ui_ScreenHeatingNozzle, LV_MOONRAKER_STATE_NOZZLE_HEATING, NULL);
-        if (moonraker.data.printing)
-            screen_state = LV_SCREEN_HEATED;
+        if (!moonraker.data.printing)
+            lv_goto_busy_screen(ui_ScreenHeatingNozzle, LV_MOONRAKER_STATE_NOZZLE_HEATING, NULL);
         return;
     }
     if (moonraker_bed_is_heating()) {
-        lv_goto_busy_screen(ui_ScreenHeatingBed, LV_MOONRAKER_STATE_BED_HEATING, NULL);
-        if (moonraker.data.printing)
-            screen_state = LV_SCREEN_HEATED;
+        if (!moonraker.data.printing)
+            lv_goto_busy_screen(ui_ScreenHeatingBed, LV_MOONRAKER_STATE_BED_HEATING, NULL);
         return;
     }
 
