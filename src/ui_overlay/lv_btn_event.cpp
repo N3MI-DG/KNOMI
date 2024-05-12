@@ -52,21 +52,4 @@ void lv_loop_btn_event(void) {
     }
 #endif
 
-#ifdef LIS2DW_SUPPORT
-    if(lv_scr_act() == ui_ScreenTestSensor) {
-        // accelerometer
-        lv_slider_set_value(ui_slider_acc_x, abs(lis2dw12_acc[0]) / 10, LV_ANIM_ON);
-        lv_slider_set_value(ui_slider_acc_y, abs(lis2dw12_acc[1]) / 10, LV_ANIM_ON);
-        lv_slider_set_value(ui_slider_acc_z, abs(lis2dw12_acc[2]) / 10, LV_ANIM_ON);
-
-        char buf[10];
-        snprintf(buf, sizeof(buf), "%d", lis2dw12_acc[0] / 100);
-        lv_label_set_text(ui_label_test_x, buf);
-        snprintf(buf, sizeof(buf), "%d", lis2dw12_acc[1] / 100);
-        lv_label_set_text(ui_label_test_y, buf);
-        snprintf(buf, sizeof(buf), "%d", lis2dw12_acc[2] / 100);
-        lv_label_set_text(ui_label_test_z, buf);
-    }
-#endif
 }
-// WiFi.scanNetworks(true, false, true, 75U);

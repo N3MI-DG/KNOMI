@@ -141,11 +141,21 @@ void lv_loop_set_temp_screen(void) {
     if (event != KNOB_IDLE) {
         #define DIAL_ANGLE_INC 30
         #define TARGET_INC 5
+        #define TARGET_INC_PRINTING 1
+
         if (event == KNOB_INC) {
-            frontend_target += TARGET_INC;
+            if (moonraker.data.printing) {
+                frontend_target += TARGET_INC_PRINTING;
+            } else {
+                frontend_target += TARGET_INC;
+            }
             lv_img_set_angle(ui_img_set_temp_dial, angle += DIAL_ANGLE_INC);
         } else if (event == KNOB_DEC) {
-            frontend_target -= TARGET_INC;
+            if (moonraker.data.printing) {
+                frontend_target -= TARGET_INC_PRINTING;
+            } else {
+                frontend_target -= TARGET_INC;
+            }
             lv_img_set_angle(ui_img_set_temp_dial, angle -= DIAL_ANGLE_INC);
         }
     }

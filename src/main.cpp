@@ -46,26 +46,17 @@ void setup() {
         NULL   // Task handle
         );
 
-#ifdef LIS2DW_SUPPORT
-    xTaskCreate(lis2dw12_task, "lis2dw12",
-        4096,  // Stack size (bytes)
-        NULL,  // Parameter to pass
-        9,     // Task priority
-        NULL   // Task handle
-        );
-#endif
-
     xTaskCreate(wifi_task, "wifi",
         4096,  // Stack size (bytes)
         NULL,  // Parameter to pass
-        8,     // Task priority
+        9,     // Task priority
         NULL   // Task handle
         );
 
     xTaskCreate(moonraker_task, "moonraker",
         4096,  // Stack size (bytes)
         NULL,  // Parameter to pass
-        7,     // Task priority
+        8,     // Task priority
         NULL   // Task handle
         );
 }

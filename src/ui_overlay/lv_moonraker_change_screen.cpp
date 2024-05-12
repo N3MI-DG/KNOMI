@@ -21,9 +21,10 @@ typedef enum {
 } lv_screen_state_t;
 
 lv_obj_t * ui_img_main_gif;
-const lv_img_dsc_t * gif_idle[] = {&gif_voron, &gif_standby};
+// const lv_img_dsc_t * gif_idle[] = {&gif_voron, &gif_standby};
+const lv_img_dsc_t * gif_idle[] = {&gif_voron};
 
-static char string_buffer[8];
+static char string_buffer[10];
 static lv_screen_state_t lv_screen_state = LV_MOONRAKER_STATE_IDLE;
 static lv_obj_t * ui_ScreenIdle = NULL;
 static lv_obj_t * ui_ScreenNow = NULL;
@@ -232,20 +233,57 @@ void lv_loop_moonraker_change_screen_value(void) {
         lv_label_set_text(ui_label_temp_bed_actual, string_buffer);
         lv_label_set_text(ui_label_heating_bed_actual, string_buffer);
     }
-    // progress
-    static uint8_t progress;
-    if (progress != moonraker.data.progress) {
-        progress = moonraker.data.progress;
-        lv_arc_set_value(ui_arc_printing_progress, progress);
-        snprintf(string_buffer, sizeof(string_buffer), "%d%%", progress);
-        lv_label_set_text(ui_label_printing_progress, string_buffer);
+    // extruder
+    float extruder_temp;
+    float extruder_target;
+    int8_t extruder_duty;
+
+    if (moonraker.data.printing) {
+        extruder_temp = moonraker.data.extruder_temp;
+        extruder_target = moonraker.data.extruder_target;
+        extruder_duty = moonraker.data.extruder_duty;
+        
+        // Update extruder temp
+        snprintf(string_buffer, sizeof(string_buffer), "%.1f%℃", extruder_temp);
+        lv_label_set_text(ui_label_extruder_temp, string_buffer);
+
+        // Update target temp
+        snprintf(string_buffer, sizeof(string_buffer), "%.1f%℃", extruder_target);
+        lv_label_set_text(ui_label_extruder_target, string_buffer);
+
+        // Update chart
+        int8_t padding = 2 * 100; // ℃ * 100
+        uint32_t chart_max = moonraker.data.extruder_targets[0] * 100;
+        uint32_t chart_min = moonraker.data.extruder_targets[0] * 100;
+
+
+        for(int16_t i = 0; i < CHART_SECONDS; i++) {
+            uint32_t temp = moonraker.data.extruder_temps[i] * 100;
+            uint32_t target = moonraker.data.extruder_targets[i] * 100;
+
+            if (temp > chart_max) chart_max = temp;
+            if (temp < chart_min) chart_min = temp;
+
+            ui_actual_temps->y_points[i] = temp;
+            ui_target_temps->y_points[i] = target;
+        }
+
+        lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_PRIMARY_Y, chart_min+padding, chart_max-padding);
+        lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_SECONDARY_Y, chart_min+padding, chart_max-padding);
+        lv_chart_refresh(ui_chart_extruder);
+
+        // Update extruder duty
+        snprintf(string_buffer, sizeof(string_buffer), "%d%%", extruder_duty);
+        lv_label_set_text(ui_label_extruder_duty, string_buffer);
+        lv_slider_set_value(ui_slider_extruder_duty, extruder_duty, LV_ANIM_ON);
+
+        // // Update set temp nozzle
+        // snprintf(string_buffer, sizeof(string_buffer), "%d%℃", extruder_target);
+        // lv_label_set_text(ui_set_temp_target, string_buffer);
+
     }
-#ifdef LIS2DW_SUPPORT
-    // accelerometer
-    lv_slider_set_value(ui_slider_printing_acc_x, abs(lis2dw12_acc[0]) / 10, LV_ANIM_ON);
-    lv_slider_set_value(ui_slider_printing_acc_y, abs(lis2dw12_acc[1]) / 10, LV_ANIM_ON);
-    lv_slider_set_value(ui_slider_printing_acc_z, abs(lis2dw12_acc[2] + 980) / 10, LV_ANIM_ON); // +980 for counteract the value of gravitational acceleration
-#endif
+
+
 
     if ((moonraker.data.nozzle_target != 0) && (lv_scr_act() == ui_ScreenHeatingNozzle)) {
         lv_slider_set_value(ui_slider_heating_nozzle, moonraker.data.nozzle_actual * 100 / moonraker.data.nozzle_target, LV_ANIM_ON);

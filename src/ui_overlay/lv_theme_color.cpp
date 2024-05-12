@@ -67,6 +67,7 @@ void lv_theme_color_style(void) {
 
     lv_obj_t * const indicator_img_obj[] = {
         ui_slider_heating_nozzle,
+        ui_slider_extruder_duty,
         // ScreenHeatingBed
         ui_slider_heating_bed,
         // ScreenBacklight
@@ -77,11 +78,4 @@ void lv_theme_color_style(void) {
         lv_obj_set_style_bg_img_recolor_opa(indicator_img_obj[i], opa, LV_PART_INDICATOR | LV_STATE_DEFAULT);
     }
 
-    lv_obj_t * const arc_obj[] = {
-        // ScreenPrinting
-        ui_arc_printing_progress, ui_arc_bg_1, ui_arc_bg_2_1, ui_arc_bg_2_2, ui_arc_bg_2_3,
-    };
-    for (uint16_t i = 0; i < ACOUNT(arc_obj); i++) {
-        lv_obj_set_style_arc_color(arc_obj[i], lv_theme_color(), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    }
 }

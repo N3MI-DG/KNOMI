@@ -111,6 +111,14 @@ void MOONRAKER::get_printer_info(void) {
     if (!printer_info.isEmpty()) {
         DynamicJsonDocument json_parse(printer_info.length() * 2);
         deserializeJson(json_parse, printer_info);
+
+        String extruder = "tool";
+        String tool = knomi_config.moonraker_tool;
+        u_int8_t len = tool.length();
+        char tool_index = tool[len-1];
+
+        extruder += tool_index;
+
         data.pause = json_parse["state"]["flags"]["pausing"].as<bool>(); // pausing
         data.pause |= json_parse["state"]["flags"]["paused"].as<bool>(); // paused
         data.printing = json_parse["state"]["flags"]["printing"].as<bool>(); // printing
@@ -118,11 +126,11 @@ void MOONRAKER::get_printer_info(void) {
         data.printing |= data.pause; // pause
         data.bed_actual = int16_t(json_parse["temperature"]["bed"]["actual"].as<double>() + 0.5f);
         data.bed_target = int16_t(json_parse["temperature"]["bed"]["target"].as<double>() + 0.5f);
-        data.nozzle_actual = int16_t(json_parse["temperature"][knomi_config.moonraker_tool]["actual"].as<double>() + 0.5f);
-        data.nozzle_target = int16_t(json_parse["temperature"][knomi_config.moonraker_tool]["target"].as<double>() + 0.5f);
+        data.nozzle_actual = int16_t(json_parse["temperature"][extruder]["actual"].as<double>() + 0.5f);
+        data.nozzle_target = int16_t(json_parse["temperature"][extruder]["target"].as<double>() + 0.5f);
 #ifdef MOONRAKER_DEBUG
-        Serial.print("unoperational: ");
-        Serial.println(unoperational);
+        // Serial.print("unoperational: ");
+        // Serial.println(unoperational);
         Serial.print("printing: ");
         Serial.println(data.printing);
         Serial.print("bed_actual: ");
@@ -172,6 +180,42 @@ void MOONRAKER::get_progress(void) {
     }
 }
 
+void MOONRAKER::get_extruder(void) {
+    String display_status = send_request("GET", "/server/temperature_store?include_monitors=false");
+    if (!display_status.isEmpty()) {
+        DynamicJsonDocument json_parse(display_status.length() * 4);
+        deserializeJson(json_parse, display_status);
+
+        String extruder = "extruder";
+        String tool = knomi_config.moonraker_tool;
+        u_int8_t len = tool.length();
+        char tool_index = tool[len-1];
+
+        if (tool_index != '0') {
+            extruder += tool_index;
+        }
+
+        for (unsigned i = CHART_SECONDS ; i-- > 0 ; ) {
+            data.extruder_temps[i] = json_parse["result"][extruder]["temperatures"][1200-(CHART_SECONDS-i)].as<float>();
+            data.extruder_targets[i] = json_parse["result"][extruder]["targets"][1200-(CHART_SECONDS-i)].as<float>();
+        }
+
+        data.extruder_temp   = data.extruder_temps[CHART_SECONDS-1];
+        data.extruder_target = data.extruder_targets[CHART_SECONDS-1];
+        data.extruder_duty   = float(json_parse["result"][extruder]["powers"][1200-(CHART_SECONDS-1)].as<float>() * 100);
+
+#ifdef MOONRAKER_DEBUG
+        Serial.print("extruder_temp: ");
+        Serial.println(data.extruder_temp);
+        Serial.print("extruder_target: ");
+        Serial.println(data.extruder_target);
+        Serial.print("extruder_duty: ");
+        Serial.println(data.extruder_duty);
+#endif
+    } else {
+        Serial.println("Empty: moonraker: get_extruder");
+    }
+}
 void MOONRAKER::get_knomi_status(void) {
     String knomi_status = send_request("GET", "/printer/objects/query?gcode_macro%20_KNOMI_STATUS");
     if (!knomi_status.isEmpty()) {
@@ -210,6 +254,7 @@ void MOONRAKER::http_get_loop(void) {
         get_printer_info();
         if (data.printing) {
             get_progress();
+            get_extruder();
         }
     }
     data_unlock = true;

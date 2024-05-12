@@ -12,7 +12,7 @@
 //     MOONRAKER_STATE_PRINTING,
 //     MOONRAKER_STATE_IDLE,
 // } moonraker_status_t;
-
+#define CHART_SECONDS 120
 typedef struct {
     int16_t bed_actual;
     int16_t bed_target;
@@ -20,6 +20,11 @@ typedef struct {
     int16_t nozzle_target;
     uint8_t progress;
     char file_path[32];
+    float extruder_temp;
+    float extruder_target;
+    float extruder_temps[CHART_SECONDS];
+    float extruder_targets[CHART_SECONDS];
+    uint8_t extruder_duty;
 
     bool pause;
     bool printing;    // is klipper in a printing task (including printing, pausing, paused, cancelling)
@@ -55,6 +60,7 @@ class MOONRAKER {
         void get_printer_ready(void);
         void get_printer_info(void);
         void get_progress(void);
+        void get_extruder(void);
         void get_knomi_status(void);
 };
 

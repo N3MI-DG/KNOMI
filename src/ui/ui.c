@@ -109,18 +109,13 @@ lv_obj_t * ui_img_set_extrude_ok;
 void ui_ScreenPrinting_screen_init(void);
 void ui_event_ScreenPrinting(lv_event_t * e);
 lv_obj_t * ui_ScreenPrinting;
-lv_obj_t * ui_label_printing_progress;
-lv_obj_t * ui_arc_printing_progress;
-lv_obj_t * ui_slider_printing_acc_x;
-lv_obj_t * ui_label_printing_acc_x;
-lv_obj_t * ui_slider_printing_acc_y;
-lv_obj_t * ui_label_printing_acc_y;
-lv_obj_t * ui_slider_printing_acc_z;
-lv_obj_t * ui_label_printing_acc_z;
-lv_obj_t * ui_arc_bg_1;
-lv_obj_t * ui_arc_bg_2_1;
-lv_obj_t * ui_arc_bg_2_2;
-lv_obj_t * ui_arc_bg_2_3;
+lv_obj_t * ui_label_extruder_temp;
+lv_obj_t * ui_label_extruder_target;
+lv_obj_t * ui_label_extruder_duty;
+lv_obj_t * ui_slider_extruder_duty;
+lv_obj_t * ui_chart_extruder;
+lv_chart_series_t * ui_actual_temps;
+lv_chart_series_t * ui_target_temps;
 
 // SCREEN: ui_ScreenHeatingNozzle
 void ui_ScreenHeatingNozzle_screen_init(void);
@@ -443,6 +438,11 @@ void ui_event_ScreenPrinting(lv_event_t * e)
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_BOTTOM) {
         lv_indev_wait_release(lv_indev_get_act());
         lv_dialog_goto_pause_resume(e);
+    }
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
+        lv_indev_wait_release(lv_indev_get_act());
+        lv_temp_set_type_nozzle(e);
+        _ui_screen_change(&ui_ScreenSetTemp, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_ScreenSetTemp_screen_init);
     }
 }
 void ui_event_ScreenRoller(lv_event_t * e)
