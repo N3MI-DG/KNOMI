@@ -146,7 +146,7 @@ void lv_loop_moonraker_change_screen(void) {
             playing_img = &gif_heated;
             screen_state = LV_SCREEN_STATE_PLAYING;
             playing_next_state = LV_SCREEN_PRINT;
-            playing_ms = millis() + 7000;
+            playing_ms = millis() + 9500;
             return;
         case LV_SCREEN_PRINT:
             lv_goto_busy_screen(ui_ScreenMainGif, LV_SCREEN_PRINT, &gif_print);
@@ -172,7 +172,7 @@ void lv_loop_moonraker_change_screen(void) {
             playing_img = &gif_printed;
             screen_state = LV_SCREEN_STATE_PLAYING;
             playing_next_state = LV_SCREEN_STATE_INIT;
-            playing_ms = millis() + 7000;
+            playing_ms = millis() + 9500;
             return;
     }
 
@@ -192,7 +192,7 @@ void lv_loop_moonraker_change_screen(void) {
         if (gif_idle_ms < millis()) {
             lv_gif_set_src(ui_img_main_gif, gif_idle[gif_idle_index]);
             gif_idle_index = (gif_idle_index + 1) % ACOUNT(gif_idle);
-            gif_idle_ms = millis() + 7000; // 7s
+            gif_idle_ms = millis() + 9500; // 9.5s
         }
     }
 }
