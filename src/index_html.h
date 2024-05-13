@@ -379,7 +379,7 @@ text-align: center;">
             document.getElementById("popup_title_id").innerHTML="Klipper Config";
             document.getElementById("popup_content_id").innerHTML="<div>" + "Klipper IP: "+ "<font color='#C02E2F'>" + ip + "</font><br>"
                                                                 + "Klipper Port: " + "<font color='#C02E2F'>" + port + "</font><br>"
-                                                                + "Tool ID: " + "<font color='#C02E2F'>" + tool + "</font><br></div>";
+                                                                + "Tool Number: " + "<font color='#C02E2F'>" + tool + "</font><br></div>";
 
             var popup_id = document.getElementById("popup_id");
             popup_id.style.display = "block";
@@ -452,8 +452,8 @@ text-align: center;">
                 <input type="text" id ="port" name="port" $port$ maxlength="5">
             </label>
             <label class="ant-form-item-row">
-                <span>Tool ID:&nbsp</span>
-                <input type="text" id ="tool" name="tool" $tool$ maxlength="6">
+                <span>Tool Number:&nbsp</span>
+                <input type="text" id ="tool" name="tool" $tool$ maxlength="1">
             </label>
         </form>
         <input type ="submit" id="submit-btn" value ="Submit" onclick="showPopupKlipper()">

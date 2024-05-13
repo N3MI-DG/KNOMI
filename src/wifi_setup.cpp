@@ -3,7 +3,7 @@
 #include "knomi.h"
 
 #define DEFAULT_KLIPPER_PORT "80"
-#define DEFAULT_KLIPPER_TOOL "tool0"
+#define DEFAULT_KLIPPER_TOOL "0"
 
 #define DNS_PORT 53
 DNSServer dnsServer;

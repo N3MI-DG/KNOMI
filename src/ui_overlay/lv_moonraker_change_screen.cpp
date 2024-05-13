@@ -254,7 +254,6 @@ void lv_loop_moonraker_change_screen_value(void) {
         uint32_t chart_max = moonraker.data.extruder_targets[0] * 100;
         uint32_t chart_min = moonraker.data.extruder_targets[0] * 100;
 
-
         for(int16_t i = 0; i < CHART_SECONDS; i++) {
             uint32_t temp = moonraker.data.extruder_temps[i] * 100;
             uint32_t target = moonraker.data.extruder_targets[i] * 100;
@@ -274,10 +273,6 @@ void lv_loop_moonraker_change_screen_value(void) {
         snprintf(string_buffer, sizeof(string_buffer), "%d%%", extruder_duty);
         lv_label_set_text(ui_label_extruder_duty, string_buffer);
         lv_slider_set_value(ui_slider_extruder_duty, extruder_duty, LV_ANIM_ON);
-
-        // // Update set temp nozzle
-        // snprintf(string_buffer, sizeof(string_buffer), "%d%℃", extruder_target);
-        // lv_label_set_text(ui_set_temp_target, string_buffer);
 
     }
 

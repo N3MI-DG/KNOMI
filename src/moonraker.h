@@ -3,16 +3,8 @@
 
 #include <WString.h>
 
-// typedef enum {
-//     MOONRAKER_STATE_HOMING = 0,
-//     MOONRAKER_STATE_PROBING,
-//     MOONRAKER_STATE_QGLING,
-//     MOONRAKER_STATE_NOZZLE_HEATING,
-//     MOONRAKER_STATE_BED_HEATING,
-//     MOONRAKER_STATE_PRINTING,
-//     MOONRAKER_STATE_IDLE,
-// } moonraker_status_t;
 #define CHART_SECONDS 120
+
 typedef struct {
     int16_t bed_actual;
     int16_t bed_target;
@@ -25,6 +17,10 @@ typedef struct {
     float extruder_temps[CHART_SECONDS];
     float extruder_targets[CHART_SECONDS];
     uint8_t extruder_duty;
+    String toolchanger_status;;
+    int8_t active_tool;
+    int8_t tool_numbers[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    uint8_t tool_count;
 
     bool pause;
     bool printing;    // is klipper in a printing task (including printing, pausing, paused, cancelling)
@@ -61,7 +57,7 @@ class MOONRAKER {
         void get_printer_info(void);
         void get_progress(void);
         void get_extruder(void);
-        void get_knomi_status(void);
+        void get_status(void);
 };
 
 extern MOONRAKER moonraker;
