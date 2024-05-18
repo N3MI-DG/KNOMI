@@ -3,8 +3,7 @@
 #include "moonraker.h"
 #include "knomi.h"
 
-#define MOONRAKER_DEBUG
-// GET /server/gcode_store?count=100 // use this to detect tool change
+// #define MOONRAKER_DEBUG
 
 void lv_popup_warning(const char * warning, bool clickable);
 
@@ -114,7 +113,7 @@ void MOONRAKER::get_printer_info(void) {
         deserializeJson(json_parse, printer_info);
 
         String tool = "tool";
-        tool += knomi_config.moonraker_tool;
+        tool += knomi_config.moonraker_tool[0];
 
         data.pause = json_parse["state"]["flags"]["pausing"].as<bool>(); // pausing
         data.pause |= json_parse["state"]["flags"]["paused"].as<bool>(); // paused
@@ -185,8 +184,8 @@ void MOONRAKER::get_extruder(void) {
 
         String extruder = "extruder";
 
-        if (knomi_config.moonraker_tool != "0") {
-            extruder += knomi_config.moonraker_tool;
+        if (knomi_config.moonraker_tool[0] != char(48)) { 
+            extruder += knomi_config.moonraker_tool[0];
         }
 
         for (unsigned i = CHART_SECONDS ; i-- > 0 ; ) {
@@ -226,13 +225,10 @@ void MOONRAKER::get_status(void) {
         // Toolchanger
         data.toolchanger_status = json_parse["result"]["status"]["toolchanger"]["status"].as<String>();
         data.active_tool = json_parse["result"]["status"]["toolchanger"]["tool_number"].as<int8_t>();
-        
         data.tool_count = json_parse["result"]["status"]["toolchanger"]["tool_numbers"].size(); 
 
         for (size_t i = 0; i < data.tool_count; i++)
             data.tool_numbers[i] = json_parse["result"]["status"]["toolchanger"]["tool_numbers"][i].as<uint8_t>();
-
-        
 
 #ifdef MOONRAKER_DEBUG
         // Knomi

@@ -2,6 +2,7 @@
 #include "knomi.h"
 #include "moonraker.h"
 #include "lv_overlay.h"
+#include "toolchanger.h"
 
 typedef enum {
     LV_MOONRAKER_STATE_IDLE = 0,
@@ -18,10 +19,16 @@ typedef enum {
     LV_SCREEN_PRINT_OK,
     LV_SCREEN_PRINTED,
     LV_SCREEN_STATE_PLAYING,
+    // LV_SCREEN_TC_UNINITALIZED,
+    // LV_SCREEN_TC_INITIALIZING,
+    LV_SCREEN_TC_READY,
+    LV_SCREEN_TC_DOCKED,
+    LV_SCREEN_TC_SELECTED,
+    // LV_SCREEN_TC_ERROR
 } lv_screen_state_t;
 
 lv_obj_t * ui_img_main_gif;
-// const lv_img_dsc_t * gif_idle[] = {&gif_voron, &gif_standby};
+
 const lv_img_dsc_t * gif_idle[] = {&gif_voron};
 
 static char string_buffer[10];
@@ -88,14 +95,7 @@ bool moonraker_bed_is_heating(void) {
 
 // screen change according to moonraker status
 void lv_loop_moonraker_change_screen(void) {
-
     static lv_screen_state_t screen_state = LV_SCREEN_STATE_INIT;
-    // if (moonraker.data.printing) {
-    //     if (lv_screen_state == 0) {
-    //         lv_goto_busy_screen(ui_ScreenPrinting, LV_MOONRAKER_STATE_PRINTING, NULL);
-    //         return;
-    //     }
-    // }
     if (moonraker.data.homing) {
         lv_goto_busy_screen(ui_ScreenMainGif, LV_MOONRAKER_STATE_HOMING, &gif_homing);
         return;
@@ -119,10 +119,77 @@ void lv_loop_moonraker_change_screen(void) {
         return;
     }
 
+    if (moonraker.data.toolchanger_status != tc_status[tc_previous_state]) {
+        bool is_current_tool = moonraker.data.active_tool >= 0 && knomi_config.moonraker_tool[0] == char(48 + moonraker.data.active_tool);
+        bool is_previous_tool = knomi_config.moonraker_tool[0] == char(48 + previous_tool);
+
+        Serial.print("Toolchanger: ");
+        Serial.print(tc_status[tc_previous_state]);
+        Serial.print(" -> ");
+        Serial.print(moonraker.data.toolchanger_status);
+        Serial.print(" :: Active = ");
+        Serial.println(is_current_tool);
+
+        if (moonraker.data.toolchanger_status == tc_status[TC_UNINITALIZED]) {
+            tc_previous_state = TC_UNINITALIZED;
+            previous_tool = -1;
+            return;
+        }
+
+        if (moonraker.data.toolchanger_status == tc_status[TC_INITIALIZING]) {
+            tc_previous_state = TC_INITIALIZING;
+            return;
+        }
+
+        if (moonraker.data.toolchanger_status == tc_status[TC_READY]) {
+            if (tc_previous_state == TC_SELECTING) {
+                if (is_current_tool) {
+                    screen_state = LV_SCREEN_TC_READY;
+                    tc_previous_state = TC_READY;
+                    return;
+                }
+            }
+
+            if (is_current_tool) {
+                screen_state = LV_SCREEN_TC_READY;
+            }
+
+            tc_previous_state = TC_READY;
+            return;
+        }
+
+        if (moonraker.data.toolchanger_status == tc_status[TC_DOCKING]) {
+            if (tc_previous_state == TC_SELECTING && is_current_tool) { // This is triggered by demo
+                screen_state = LV_SCREEN_TC_SELECTED;
+            }
+
+            tc_previous_state = TC_DOCKING;
+            previous_tool = moonraker.data.active_tool;
+            return;
+        }
+
+        if (moonraker.data.toolchanger_status == tc_status[TC_SELECTING]) {
+            if (tc_previous_state == TC_DOCKING && is_previous_tool) {
+                screen_state = LV_SCREEN_TC_DOCKED;
+            }
+
+            tc_previous_state = TC_SELECTING;
+            return;
+        }
+
+        if (moonraker.data.toolchanger_status == tc_status[TC_ERROR]) {
+            tc_previous_state = TC_ERROR;
+            return;
+        }
+
+    }
+
     static lv_screen_state_t playing_next_state = LV_SCREEN_STATE_INIT;
     static uint32_t playing_ms = 0;
+    static uint32_t delay_ms = 0;
     static lv_screen_state_t playing_state;
     static const lv_img_dsc_t * playing_img;
+    Serial.println(screen_state);
     switch (screen_state) {
         case LV_SCREEN_STATE_INIT:
             if (moonraker.data.printing) {
@@ -144,7 +211,7 @@ void lv_loop_moonraker_change_screen(void) {
             playing_img = &gif_heated;
             screen_state = LV_SCREEN_STATE_PLAYING;
             playing_next_state = LV_SCREEN_PRINT;
-            playing_ms = millis() + 4500;
+            playing_ms = millis() + 7000;
             return;
         case LV_SCREEN_PRINT:
             lv_goto_busy_screen(ui_ScreenMainGif, LV_SCREEN_PRINT, &gif_print);
@@ -152,6 +219,9 @@ void lv_loop_moonraker_change_screen(void) {
                 screen_state = LV_SCREEN_STATE_IDLE;
             return;
         case LV_SCREEN_STATE_PLAYING:
+            if (delay_ms > millis()) {
+                return;
+            }
             if (playing_ms > millis()) {
                 lv_goto_busy_screen(ui_ScreenMainGif, playing_state, playing_img);
                 return;
@@ -170,7 +240,41 @@ void lv_loop_moonraker_change_screen(void) {
             playing_img = &gif_printed;
             screen_state = LV_SCREEN_STATE_PLAYING;
             playing_next_state = LV_SCREEN_STATE_INIT;
-            playing_ms = millis() + 4500;
+            playing_ms = millis() + 7000;
+            return;
+        case LV_SCREEN_TC_READY:
+            playing_state = LV_SCREEN_TC_READY;
+            playing_img = &gif_print_ok;
+            screen_state = LV_SCREEN_STATE_PLAYING;
+            if (moonraker.data.printing) {
+                playing_next_state = LV_SCREEN_STATE_IDLE;
+            } else {
+                playing_next_state = LV_SCREEN_STATE_INIT;
+            }
+            playing_ms = millis() + 1600;
+            return;
+        case LV_SCREEN_TC_DOCKED:
+            playing_state = LV_SCREEN_TC_DOCKED;
+            playing_img = &gif_print_ok;
+            screen_state = LV_SCREEN_STATE_PLAYING;
+            if (moonraker.data.printing) {
+                playing_next_state = LV_SCREEN_STATE_IDLE;
+            } else {
+                playing_next_state = LV_SCREEN_STATE_INIT;
+            }
+            delay_ms = millis() + 2000;
+            playing_ms = delay_ms + 1600;
+            return;
+        case LV_SCREEN_TC_SELECTED:
+            playing_state = LV_SCREEN_TC_SELECTED;
+            playing_img = &gif_print_ok;
+            screen_state = LV_SCREEN_STATE_PLAYING;
+            if (moonraker.data.printing) {
+                playing_next_state = LV_SCREEN_STATE_IDLE;
+            } else {
+                playing_next_state = LV_SCREEN_STATE_INIT;
+            }
+            playing_ms = millis() + 1600;
             return;
     }
 
@@ -273,10 +377,7 @@ void lv_loop_moonraker_change_screen_value(void) {
         snprintf(string_buffer, sizeof(string_buffer), "%d%%", extruder_duty);
         lv_label_set_text(ui_label_extruder_duty, string_buffer);
         lv_slider_set_value(ui_slider_extruder_duty, extruder_duty, LV_ANIM_ON);
-
     }
-
-
 
     if ((moonraker.data.nozzle_target != 0) && (lv_scr_act() == ui_ScreenHeatingNozzle)) {
         lv_slider_set_value(ui_slider_heating_nozzle, moonraker.data.nozzle_actual * 100 / moonraker.data.nozzle_target, LV_ANIM_ON);

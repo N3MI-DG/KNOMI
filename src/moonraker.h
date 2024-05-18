@@ -4,7 +4,6 @@
 #include <WString.h>
 
 #define CHART_SECONDS 120
-
 typedef struct {
     int16_t bed_actual;
     int16_t bed_target;
@@ -17,7 +16,7 @@ typedef struct {
     float extruder_temps[CHART_SECONDS];
     float extruder_targets[CHART_SECONDS];
     uint8_t extruder_duty;
-    String toolchanger_status;;
+    String toolchanger_status;
     int8_t active_tool;
     int8_t tool_numbers[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     uint8_t tool_count;
