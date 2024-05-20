@@ -87,6 +87,36 @@ void ui_ScreenPrinting_screen_init(void)
     lv_obj_set_style_text_opa(ui_label_extruder_duty, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_label_extruder_duty, &ui_font_InterSemiBold24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    // Progress label
+    ui_label_printing_progress = lv_label_create(ui_ScreenPrinting);
+    lv_obj_set_width(ui_label_printing_progress, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_label_printing_progress, LV_SIZE_CONTENT);
+    lv_obj_set_align(ui_label_printing_progress, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_label_printing_progress, "NULL");
+    lv_obj_set_style_text_color(ui_label_printing_progress, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_label_printing_progress, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_label_printing_progress, &ui_font_InterSemiBold48, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // Progress arc
+    ui_arc_printing_progress = lv_arc_create(ui_ScreenPrinting);
+    lv_obj_set_width(ui_arc_printing_progress, 212);
+    lv_obj_set_height(ui_arc_printing_progress, 212);
+    lv_obj_set_align(ui_arc_printing_progress, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_arc_printing_progress,
+                      LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);
+    lv_arc_set_value(ui_arc_printing_progress, 1);
+    lv_arc_set_bg_angles(ui_arc_printing_progress, 0, 360);
+    lv_arc_set_rotation(ui_arc_printing_progress, 270);
+    lv_obj_set_style_arc_color(ui_arc_printing_progress, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(ui_arc_printing_progress, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_color(ui_arc_printing_progress, lv_color_hex(0xC02F30), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(ui_arc_printing_progress, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_arc_printing_progress, 20, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_arc_printing_progress, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_arc_printing_progress, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+
     lv_obj_add_event_cb(ui_ScreenPrinting, ui_event_ScreenPrinting, LV_EVENT_ALL, NULL);
 
 }

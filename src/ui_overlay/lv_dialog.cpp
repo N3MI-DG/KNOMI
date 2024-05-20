@@ -3,7 +3,10 @@
 #include "moonraker.h"
 
 enum UI_DIALOG_TYPE {
-    UI_DIALOG_ABL = 0x00,
+    UI_DIALOG_TOOL_SELECT = 0x00,
+    UI_DIALOG_TOOL_DOCK,
+    UI_DIALOG_TOOL_CAL,
+    UI_DIALOG_ABL,
     UI_DIALOG_QGL,
     UI_DIALOG_HOME,
     UI_DIALOG_PRINT,
@@ -19,6 +22,9 @@ static String moonraker_custom_cmd;
 static lv_obj_t * dialog_previous_menu;
 
 static const char *dialog_title[] = {
+    "Select Tool?",
+    "Dock Tool?",
+    "Start Calibration?",
     "Start ABL?",
     "Start QGL?",
     "Start Home?",
@@ -46,6 +52,17 @@ void lv_dialog_set_custom(const char * text, String cmd) {
     lv_dialog_goto(UI_DIALOG_MOONRAKER_CUSTOM);
 }
 
+void lv_dialog_goto_tool_select(lv_event_t * e) {
+    lv_dialog_goto(UI_DIALOG_TOOL_SELECT);
+}
+
+void lv_dialog_goto_tool_dock(lv_event_t * e) {
+    lv_dialog_goto(UI_DIALOG_TOOL_DOCK);
+}
+
+void lv_dialog_goto_tool_cal(lv_event_t * e) {
+    lv_dialog_goto(UI_DIALOG_TOOL_CAL);
+}
 
 void lv_dialog_goto_abl(lv_event_t * e) {
     lv_dialog_goto(UI_DIALOG_ABL);
@@ -89,6 +106,15 @@ void lv_dialog_back_to_previous_menu(lv_event_t * e) {
 // button
 void lv_dialog_btn_ok(lv_event_t * e) {
     switch (dialog_type) {
+        case UI_DIALOG_TOOL_SELECT:
+            moonraker.post_gcode_to_queue("T"+knomi_config.moonraker_tool[0]);
+            break;
+        case UI_DIALOG_TOOL_DOCK:
+            moonraker.post_gcode_to_queue("UNSELECT_TOOL%20RESTORE_AXIS=XYZ");
+            break;
+        case UI_DIALOG_TOOL_CAL:
+            moonraker.post_gcode_to_queue("TOOL_ALIGN_START");
+            break;
         case UI_DIALOG_ABL:
             moonraker.post_gcode_to_queue("BED_MESH_CALIBRATE");
             break;
@@ -122,5 +148,10 @@ void lv_dialog_btn_ok(lv_event_t * e) {
             break;
     }
 
-    lv_dialog_back_to_previous_menu(e);
+    if (dialog_type == UI_DIALOG_TOOL_CAL) {
+        _ui_screen_change(&ui_ScreenToolIncr, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, NULL);
+    } else {
+        lv_dialog_back_to_previous_menu(e);
+    }
+    
 }

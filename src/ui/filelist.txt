@@ -7,6 +7,8 @@ screens/ui_ScreenWIFIDisconnect.c
 screens/ui_ScreenExtrude.c
 screens/ui_ScreenMove.c
 screens/ui_ScreenTemp.c
+screens/ui_ScreenTool.c
+screens/ui_ScreenToolIncr.c
 screens/ui_ScreenSetTemp.c
 screens/ui_ScreenSetExtrude.c
 screens/ui_ScreenPrinting.c
@@ -52,6 +54,18 @@ images/ui_img_backlight_png.c
 images/ui_img_btn_cancel_png.c
 images/ui_img_popup_png.c
 images/ui_img_test_png.c
+images/ui_img_T0_png.c
+images/ui_img_T1_png.c
+images/ui_img_T2_png.c
+images/ui_img_T3_png.c
+images/ui_img_T4_png.c
+images/ui_img_T5_png.c
+images/ui_img_T6_png.c
+images/ui_img_T7_png.c
+images/ui_img_T8_png.c
+images/ui_img_T9_png.c
+images/ui_img_calibrate_png.c
+images/ui_img_dock_png.c
 fonts/ui_font_InterSeimiBold32.c
 fonts/ui_font_InterSemiBold14.c
 fonts/ui_font_InterSemiBold16.c

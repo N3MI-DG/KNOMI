@@ -29,6 +29,8 @@ void lv_btn_add_style(void) {
     lv_obj_t * const cir_btn_obj[] = {
         // Common button (ok)
         ui_btn_set_extrude_ok, ui_btn_set_temp_ok, ui_btn_dialog_ok, ui_btn_popup_ok,
+        // ScreenTool
+        ui_btn_tool_select, ui_btn_tool_dock, ui_btn_tool_cal,
         // ScreenMove
         ui_btn_move_abl, ui_btn_move_qgl, ui_btn_move_home,
         // ScreenColorWheel
@@ -37,6 +39,7 @@ void lv_btn_add_style(void) {
     for (uint8_t i = 0; i < ACOUNT(cir_btn_obj); i++) {
         lv_btn_set_style(cir_btn_obj[i], 30, lv_theme_color());
     }
+
     // circle cancle button, 0x3B3B3B is icon color
     lv_btn_set_style(ui_btn_dialog_cancel, 30, lv_color_hex(0x3B3B3B));
 

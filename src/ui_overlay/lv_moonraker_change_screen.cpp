@@ -35,6 +35,7 @@ static char string_buffer[10];
 static lv_screen_state_t lv_screen_state = LV_MOONRAKER_STATE_IDLE;
 static lv_obj_t * ui_ScreenIdle = NULL;
 static lv_obj_t * ui_ScreenNow = NULL;
+static lv_img_dsc_t ui_tool_img = ui_img_T0_png;
 
 static void lv_goto_busy_screen(lv_obj_t * screen, lv_screen_state_t state, const lv_img_dsc_t * gif) {
     if (lv_screen_state == state) return;
@@ -189,7 +190,7 @@ void lv_loop_moonraker_change_screen(void) {
     static uint32_t delay_ms = 0;
     static lv_screen_state_t playing_state;
     static const lv_img_dsc_t * playing_img;
-    Serial.println(screen_state);
+
     switch (screen_state) {
         case LV_SCREEN_STATE_INIT:
             if (moonraker.data.printing) {
@@ -336,47 +337,75 @@ void lv_loop_moonraker_change_screen_value(void) {
         lv_label_set_text(ui_label_heating_bed_actual, string_buffer);
     }
     // extruder
-    float extruder_temp;
-    float extruder_target;
-    int8_t extruder_duty;
-
+    static float extruder_temp;
+    static float extruder_target;
+    static int8_t extruder_duty;
+    static uint8_t progress;
     if (moonraker.data.printing) {
         extruder_temp = moonraker.data.extruder_temp;
         extruder_target = moonraker.data.extruder_target;
         extruder_duty = moonraker.data.extruder_duty;
         
-        // Update extruder temp
-        snprintf(string_buffer, sizeof(string_buffer), "%.1f%℃", extruder_temp);
-        lv_label_set_text(ui_label_extruder_temp, string_buffer);
+        if (extruder_target > 0) {
+            lv_obj_add_flag(ui_label_printing_progress, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_arc_printing_progress, LV_OBJ_FLAG_HIDDEN);
 
-        // Update target temp
-        snprintf(string_buffer, sizeof(string_buffer), "%.1f%℃", extruder_target);
-        lv_label_set_text(ui_label_extruder_target, string_buffer);
+            lv_obj_clear_flag(ui_label_extruder_temp, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_label_extruder_target, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_chart_extruder, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_label_extruder_duty, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_slider_extruder_duty, LV_OBJ_FLAG_HIDDEN);
 
-        // Update chart
-        int8_t padding = 2 * 100; // ℃ * 100
-        uint32_t chart_max = moonraker.data.extruder_targets[0] * 100;
-        uint32_t chart_min = moonraker.data.extruder_targets[0] * 100;
+            // Update extruder temp
+            snprintf(string_buffer, sizeof(string_buffer), "%.1f%℃", extruder_temp);
+            lv_label_set_text(ui_label_extruder_temp, string_buffer);
 
-        for(int16_t i = 0; i < CHART_SECONDS; i++) {
-            uint32_t temp = moonraker.data.extruder_temps[i] * 100;
-            uint32_t target = moonraker.data.extruder_targets[i] * 100;
+            // Update target temp
+            snprintf(string_buffer, sizeof(string_buffer), "%.1f%℃", extruder_target);
+            lv_label_set_text(ui_label_extruder_target, string_buffer);
 
-            if (temp > chart_max) chart_max = temp;
-            if (temp < chart_min) chart_min = temp;
+            // Update chart
+            int8_t padding = 2 * 100; // ℃ * 100
+            uint32_t chart_max = moonraker.data.extruder_targets[0] * 100;
+            uint32_t chart_min = moonraker.data.extruder_targets[0] * 100;
 
-            ui_actual_temps->y_points[i] = temp;
-            ui_target_temps->y_points[i] = target;
+            for(int16_t i = 0; i < CHART_SECONDS; i++) {
+                uint32_t temp = moonraker.data.extruder_temps[i] * 100;
+                uint32_t target = moonraker.data.extruder_targets[i] * 100;
+
+                if (temp > chart_max) chart_max = temp;
+                if (temp < chart_min) chart_min = temp;
+
+                ui_actual_temps->y_points[i] = temp;
+                ui_target_temps->y_points[i] = target;
+            }
+
+            lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_PRIMARY_Y, chart_min+padding, chart_max-padding);
+            lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_SECONDARY_Y, chart_min+padding, chart_max-padding);
+            lv_chart_refresh(ui_chart_extruder);
+
+            // Update extruder duty
+            snprintf(string_buffer, sizeof(string_buffer), "%d%%", extruder_duty);
+            lv_label_set_text(ui_label_extruder_duty, string_buffer);
+            lv_slider_set_value(ui_slider_extruder_duty, extruder_duty, LV_ANIM_ON);
+
+        } else {
+            lv_obj_add_flag(ui_label_extruder_temp, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_label_extruder_target, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_chart_extruder, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_label_extruder_duty, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_slider_extruder_duty, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_clear_flag(ui_label_printing_progress, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_arc_printing_progress, LV_OBJ_FLAG_HIDDEN);
+
+            if (progress != moonraker.data.progress) {
+                progress = moonraker.data.progress;
+                lv_arc_set_value(ui_arc_printing_progress, progress);
+                snprintf(string_buffer, sizeof(string_buffer), "%d%%", progress);
+                lv_label_set_text(ui_label_printing_progress, string_buffer);
+            }
         }
-
-        lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_PRIMARY_Y, chart_min+padding, chart_max-padding);
-        lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_SECONDARY_Y, chart_min+padding, chart_max-padding);
-        lv_chart_refresh(ui_chart_extruder);
-
-        // Update extruder duty
-        snprintf(string_buffer, sizeof(string_buffer), "%d%%", extruder_duty);
-        lv_label_set_text(ui_label_extruder_duty, string_buffer);
-        lv_slider_set_value(ui_slider_extruder_duty, extruder_duty, LV_ANIM_ON);
     }
 
     if ((moonraker.data.nozzle_target != 0) && (lv_scr_act() == ui_ScreenHeatingNozzle)) {
@@ -385,4 +414,48 @@ void lv_loop_moonraker_change_screen_value(void) {
     if ((moonraker.data.bed_target != 0) && (lv_scr_act() == ui_ScreenHeatingBed)) {
         lv_slider_set_value(ui_slider_heating_bed, moonraker.data.bed_actual * 100 / moonraker.data.bed_target, LV_ANIM_ON);
     }
+
+    if (lv_scr_act() == ui_ScreenTool) {
+        if (knomi_config.moonraker_tool[0] == '0' && &ui_tool_img != &ui_img_T0_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T0_png);
+            ui_tool_img = ui_img_T0_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '1' && &ui_tool_img != &ui_img_T1_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T1_png);
+            ui_tool_img = ui_img_T1_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '2' && &ui_tool_img != &ui_img_T2_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T2_png);
+            ui_tool_img = ui_img_T2_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '3' && &ui_tool_img != &ui_img_T3_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T3_png);
+            ui_tool_img = ui_img_T3_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '4' && &ui_tool_img != &ui_img_T4_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T4_png);
+            ui_tool_img = ui_img_T4_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '5' && &ui_tool_img != &ui_img_T5_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T5_png);
+            ui_tool_img = ui_img_T5_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '6' && &ui_tool_img != &ui_img_T6_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T6_png);
+            ui_tool_img = ui_img_T6_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '7' && &ui_tool_img != &ui_img_T7_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T7_png);
+            ui_tool_img = ui_img_T7_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '8' && &ui_tool_img != &ui_img_T8_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T8_png);
+            ui_tool_img = ui_img_T8_png;
+        }
+        if (knomi_config.moonraker_tool[0] == '9' && &ui_tool_img != &ui_img_T9_png) {
+            lv_img_set_src(ui_img_tool_select, &ui_img_T9_png);
+            ui_tool_img = ui_img_T9_png;
+        }
+    }
+
 }

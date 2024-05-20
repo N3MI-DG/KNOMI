@@ -50,6 +50,28 @@ lv_obj_t * ui_btn_extruder_speed;
 lv_obj_t * ui_label_extruder_length;
 lv_obj_t * ui_label_extruder_speed;
 
+// SCREEN: ui_ScreenTool
+void ui_ScreenTool_screen_init(void);
+void ui_event_ScreenTool(lv_event_t * e);
+lv_obj_t * ui_ScreenTool;
+void ui_event_btn_tool_select(lv_event_t * e);
+lv_obj_t * ui_btn_tool_select;
+lv_obj_t * ui_img_tool_select;
+void ui_event_btn_tool_dock(lv_event_t * e);
+lv_obj_t * ui_btn_tool_dock;
+lv_obj_t * ui_img_tool_dock;
+void ui_event_btn_tool_cal(lv_event_t * e);
+lv_obj_t * ui_btn_tool_cal;
+lv_obj_t * ui_img_tool_cal;
+lv_obj_t * ui_label_tool_select;
+lv_obj_t * ui_label_tool_dock;
+lv_obj_t * ui_label_tool_cal;
+
+// SCREEN: ui_ScreenToolIncr
+void ui_ScreenToolIncr_screen_init(void);
+void ui_event_ScreenToolIncr(lv_event_t * e);
+lv_obj_t * ui_ScreenToolIncr;
+lv_obj_t * ui_label_tool_todo;
 // SCREEN: ui_ScreenMove
 void ui_ScreenMove_screen_init(void);
 void ui_event_ScreenMove(lv_event_t * e);
@@ -116,6 +138,8 @@ lv_obj_t * ui_slider_extruder_duty;
 lv_obj_t * ui_chart_extruder;
 lv_chart_series_t * ui_actual_temps;
 lv_chart_series_t * ui_target_temps;
+lv_obj_t * ui_label_printing_progress;
+lv_obj_t * ui_arc_printing_progress;
 
 // SCREEN: ui_ScreenHeatingNozzle
 void ui_ScreenHeatingNozzle_screen_init(void);
@@ -261,7 +285,7 @@ void ui_event_ScreenMainGif(lv_event_t * e)
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_ScreenMove, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_ScreenMove_screen_init);
+        _ui_screen_change(&ui_ScreenTool, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_ScreenTool_screen_init);
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
@@ -311,13 +335,63 @@ void ui_event_btn_extruder_speed(lv_event_t * e)
         _ui_screen_change(&ui_ScreenSetExtrude, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_ScreenSetExtrude_screen_init);
     }
 }
-void ui_event_ScreenMove(lv_event_t * e)
+void ui_event_ScreenTool(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
         _ui_screen_change(&ui_ScreenMainGif, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_ScreenMainGif_screen_init);
+    }
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
+        lv_indev_wait_release(lv_indev_get_act());
+        _ui_screen_change(&ui_ScreenMove, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_ScreenMove_screen_init);
+    }
+}
+void ui_event_btn_tool_select(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        lv_dialog_goto_tool_select(e);
+    }
+}
+void ui_event_btn_tool_dock(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        lv_dialog_goto_tool_dock(e);
+    }
+}
+void ui_event_btn_tool_cal(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        lv_dialog_goto_tool_cal(e);
+    }
+}
+void ui_event_ScreenToolIncr(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    // if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
+    //     lv_indev_wait_release(lv_indev_get_act());
+    //     _ui_screen_change(&ui_ScreenMainGif, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_ScreenMainGif_screen_init);
+    // }
+    // if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
+    //     lv_indev_wait_release(lv_indev_get_act());
+    //     _ui_screen_change(&ui_ScreenMove, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_ScreenMove_screen_init);
+    // }
+}
+void ui_event_ScreenMove(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
+        lv_indev_wait_release(lv_indev_get_act());
+        _ui_screen_change(&ui_ScreenTool, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_ScreenTool_screen_init);
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
@@ -613,6 +687,8 @@ void ui_init(void)
     ui_ScreenWIFIConnecting_screen_init();
     ui_ScreenWIFIDisconnect_screen_init();
     ui_ScreenExtrude_screen_init();
+    ui_ScreenTool_screen_init();
+    ui_ScreenToolIncr_screen_init();
     ui_ScreenMove_screen_init();
     ui_ScreenTemp_screen_init();
     ui_ScreenSetTemp_screen_init();

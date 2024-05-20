@@ -21,7 +21,6 @@ String tc_status[6] = {
     "error"
 };
 
-// bool tool_init = false;
 tc_state_t tc_previous_state = TC_UNINITALIZED;
 int8_t previous_tool = -1;
 

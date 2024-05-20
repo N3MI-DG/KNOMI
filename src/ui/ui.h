@@ -53,6 +53,27 @@ void ui_event_btn_extruder_speed(lv_event_t * e);
 extern lv_obj_t * ui_btn_extruder_speed;
 extern lv_obj_t * ui_label_extruder_length;
 extern lv_obj_t * ui_label_extruder_speed;
+// SCREEN: ui_ScreenTool
+void ui_ScreenTool_screen_init(void);
+void ui_event_ScreenTool(lv_event_t * e);
+extern lv_obj_t * ui_ScreenTool;
+void ui_event_btn_tool_select(lv_event_t * e);
+extern lv_obj_t * ui_btn_tool_select;
+extern lv_obj_t * ui_img_tool_select;
+void ui_event_btn_tool_dock(lv_event_t * e);
+extern lv_obj_t * ui_btn_tool_dock;
+extern lv_obj_t * ui_img_tool_dock;
+void ui_event_btn_tool_cal(lv_event_t * e);
+extern lv_obj_t * ui_btn_tool_cal;
+extern lv_obj_t * ui_img_tool_cal;
+extern lv_obj_t * ui_label_tool_select;
+extern lv_obj_t * ui_label_tool_dock;
+extern lv_obj_t * ui_label_tool_cal;
+// SCREEN: ui_ScreenToolIncr
+void ui_ScreenToolIncr_screen_init(void);
+void ui_event_ScreenToolIncr(lv_event_t * e);
+extern lv_obj_t * ui_ScreenToolIncr;
+extern lv_obj_t * ui_label_tool_todo;
 // SCREEN: ui_ScreenMove
 void ui_ScreenMove_screen_init(void);
 void ui_event_ScreenMove(lv_event_t * e);
@@ -115,6 +136,9 @@ extern lv_obj_t * ui_slider_extruder_duty;
 extern lv_obj_t * ui_chart_extruder;
 extern lv_chart_series_t * ui_actual_temps;
 extern lv_chart_series_t * ui_target_temps;
+extern lv_obj_t * ui_label_printing_progress;
+extern lv_obj_t * ui_arc_printing_progress;
+
 // SCREEN: ui_ScreenHeatingNozzle
 void ui_ScreenHeatingNozzle_screen_init(void);
 extern lv_obj_t * ui_ScreenHeatingNozzle;
@@ -255,6 +279,18 @@ LV_IMG_DECLARE(ui_img_backlight_png);    // assets\backlight.png
 LV_IMG_DECLARE(ui_img_btn_cancel_png);    // assets\btn_cancel.png
 LV_IMG_DECLARE(ui_img_popup_png);    // assets\popup.png
 LV_IMG_DECLARE(ui_img_test_png);    // assets\test.png
+LV_IMG_DECLARE(ui_img_T0_png);
+LV_IMG_DECLARE(ui_img_T1_png);
+LV_IMG_DECLARE(ui_img_T2_png);
+LV_IMG_DECLARE(ui_img_T3_png);
+LV_IMG_DECLARE(ui_img_T4_png);
+LV_IMG_DECLARE(ui_img_T5_png);
+LV_IMG_DECLARE(ui_img_T6_png);
+LV_IMG_DECLARE(ui_img_T7_png);
+LV_IMG_DECLARE(ui_img_T8_png);
+LV_IMG_DECLARE(ui_img_T9_png);
+LV_IMG_DECLARE(ui_img_calibrate_png);
+LV_IMG_DECLARE(ui_img_dock_png);
 
 LV_FONT_DECLARE(ui_font_InterSeimiBold32);
 LV_FONT_DECLARE(ui_font_InterSemiBold14);

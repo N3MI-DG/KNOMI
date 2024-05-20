@@ -23,6 +23,8 @@ void lv_theme_color_style(void) {
     lv_obj_t * const img_obj[] = {
         // ScreenExtrude
         ui_btn_extruder_retract, ui_btn_extruder_extrude, ui_btn_extruder_temp, ui_btn_extruder_speed,
+        // ScreenTool
+        ui_btn_tool_select, ui_btn_tool_dock, ui_btn_tool_cal,
         // ScreenMove
         ui_btn_move_abl, ui_btn_move_qgl, ui_btn_move_home,
         // ScreenTemp
@@ -77,5 +79,8 @@ void lv_theme_color_style(void) {
         lv_obj_set_style_bg_img_recolor(indicator_img_obj[i], lv_theme_color(), LV_PART_INDICATOR | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_img_recolor_opa(indicator_img_obj[i], opa, LV_PART_INDICATOR | LV_STATE_DEFAULT);
     }
+
+    lv_obj_set_style_text_color(ui_label_printing_progress, lv_theme_color(), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_color(ui_arc_printing_progress, lv_theme_color(), LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
 }
