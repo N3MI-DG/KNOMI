@@ -35,6 +35,10 @@ void lv_btn_add_style(void) {
         ui_btn_move_abl, ui_btn_move_qgl, ui_btn_move_home,
         // ScreenColorWheel
         ui_btn_color_wheel_ok,
+        // ScreenToolCal
+        ui_btn_tool_config, ui_btn_tool_axis_minus, ui_btn_tool_axis_plus,
+        // ScreenSetToolCal
+        ui_btn_set_tool_cal_test, ui_btn_set_tool_cal_save, ui_btn_set_tool_cal_ok,
     };
     for (uint8_t i = 0; i < ACOUNT(cir_btn_obj); i++) {
         lv_btn_set_style(cir_btn_obj[i], 30, lv_theme_color());

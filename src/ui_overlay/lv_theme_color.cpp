@@ -50,6 +50,10 @@ void lv_theme_color_style(void) {
         ui_img_left_host, ui_img_mid_host, ui_img_right_host,
         // ScreenTestSensor
         ui_btn_test_wifi,
+        // ScreenToolCal
+        ui_btn_tool_config, ui_btn_tool_axis_minus, ui_btn_tool_axis_plus,
+        // uiScreenSetToolCal
+        ui_btn_set_tool_cal_test, ui_btn_set_tool_cal_save, ui_btn_set_tool_cal_ok
     };
     for (uint16_t i = 0; i < ACOUNT(img_obj); i++) {
         lv_obj_set_style_img_recolor(img_obj[i], lv_theme_color(), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -61,6 +65,8 @@ void lv_theme_color_style(void) {
         ui_roller_set_extrude_length, ui_roller_set_extrude_speed,
         // ScreenRoller
         ui_roller,
+        // uiScreenSetToolCal
+        ui_roller_set_axis, ui_roller_set_increment,
     };
     for (uint16_t i = 0; i < ACOUNT(bg_img_obj); i++) {
         lv_obj_set_style_bg_img_recolor(bg_img_obj[i], lv_theme_color(), LV_PART_SELECTED | LV_STATE_DEFAULT);

@@ -38,7 +38,6 @@ void ui_ScreenDialog_screen_init(void)
     lv_obj_set_width(ui_label_dialog, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_label_dialog, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_label_dialog, 0);
-    lv_obj_set_y(ui_label_dialog, 74);
     lv_obj_set_align(ui_label_dialog, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_label_dialog, "Start Printing?");
     lv_obj_set_style_text_font(ui_label_dialog, &ui_font_InterSemiBold24, LV_PART_MAIN | LV_STATE_DEFAULT);

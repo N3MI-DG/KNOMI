@@ -38,6 +38,59 @@ void lv_roller_set_extrude(lv_event_t * e) {
     sel = (uint32_t)lv_obj_get_user_data(ui_label_extruder_speed);
     lv_roller_set_selected(ui_roller_set_extrude_speed, sel, LV_ANIM_OFF);
 }
+
+// tool calibration
+void lv_btn_set_tool_calibration(lv_event_t * e) {
+    // Initialize parameter values from roller settings
+    char axis_str[2];
+    lv_roller_get_selected_str(ui_roller_set_axis, axis_str, sizeof(axis_str));
+    lv_label_set_text(ui_label_tool_axis, axis_str);
+    uint32_t sela = lv_roller_get_selected(ui_roller_set_axis);
+    lv_obj_set_user_data(ui_label_tool_axis, (void *)sela);
+    lv_roller_get_selected_str(ui_roller_set_axis, axis_str, sizeof(axis_str));
+    lv_label_set_text(ui_label_tool_axis, axis_str);
+    sela = lv_roller_get_selected(ui_roller_set_axis);
+    lv_obj_set_user_data(ui_label_tool_axis, (void *)sela);
+
+    char increment_str[4];
+    lv_roller_get_selected_str(ui_roller_set_increment, increment_str, sizeof(increment_str));
+    lv_label_set_text(ui_label_tool_increment, increment_str);
+    uint32_t seli = lv_roller_get_selected(ui_roller_set_increment);
+    lv_obj_set_user_data(ui_label_tool_increment, (void *)seli);
+    lv_roller_get_selected_str(ui_roller_set_increment, increment_str, sizeof(increment_str));
+    lv_label_set_text(ui_label_tool_increment, increment_str);
+    seli = lv_roller_get_selected(ui_roller_set_increment);
+    lv_obj_set_user_data(ui_label_tool_increment, (void *)seli);
+}
+
+// set tool calibration rollers
+void lv_roller_set_calibration(lv_event_t * e) {
+    // Initialize parameter values from roller settings
+    uint32_t sel = (uint32_t)lv_obj_get_user_data(ui_label_tool_axis);
+    lv_roller_set_selected(ui_roller_set_axis, sel, LV_ANIM_OFF);
+
+    sel = (uint32_t)lv_obj_get_user_data(ui_label_tool_increment);
+    lv_roller_set_selected(ui_roller_set_increment, sel, LV_ANIM_OFF);
+}
+
+// move tool negative value
+void lv_btn_tool_minus(lv_event_t * e) {
+    char * axis = lv_label_get_text(ui_label_tool_axis);
+    char * increment = lv_label_get_text(ui_label_tool_increment);
+    moonraker.post_gcode_to_queue("G91");
+    moonraker.post_gcode_to_queue("G0 " + (String)axis + "-" + (String)increment);
+    moonraker.post_gcode_to_queue("G90");
+}
+
+// move tool positive value
+void lv_btn_tool_plus(lv_event_t * e) {
+    char * axis = lv_label_get_text(ui_label_tool_axis);
+    char * increment = lv_label_get_text(ui_label_tool_increment);
+    moonraker.post_gcode_to_queue("G91");
+    moonraker.post_gcode_to_queue("G0 " + (String)axis + (String)increment);
+    moonraker.post_gcode_to_queue("G90");
+}
+
 /***********************************************************/
 
 
@@ -97,6 +150,27 @@ void lvgl_ui_task(void * parameter) {
     lv_roller_set_selected(ui_roller_set_extrude_speed, 2, LV_ANIM_ON); // 10mm/s
     // Initialize extruder speed/length values from roller settings
     lv_btn_set_extrude(NULL);
+
+    // Initialize extruder speed/length values from roller settings
+    lv_btn_set_extrude(NULL);
+
+    // Initialize dock calibration axis roller options
+    const char *TOOL_AXIS = {
+        AXIS_X "\n"\
+        AXIS_Y "\n"\
+        AXIS_Z
+    };
+    lv_roller_set_options(ui_roller_set_axis, TOOL_AXIS, LV_ROLLER_MODE_NORMAL);
+    lv_roller_set_selected(ui_roller_set_axis, 1, LV_ANIM_ON);
+
+    // Initialize dock calibration increment roller options
+    const char *TOOL_INCREMENT = {
+        INCR_0 "\n"\
+        INCR_1 "\n"\
+        INCR_2
+    };
+    lv_roller_set_options(ui_roller_set_increment, TOOL_INCREMENT, LV_ROLLER_MODE_NORMAL);
+    lv_roller_set_selected(ui_roller_set_increment, 3, LV_ANIM_ON);
 
     for(;;) {
         // lvgl task, must run in loop first.

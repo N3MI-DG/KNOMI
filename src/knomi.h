@@ -123,4 +123,13 @@ extern int32_t lis2dw12_acc[3];
 #define EXTRUDE_MM_S_4 100
 #define EXTRUDE_MM_S_4_LABEL STRINGIFY(EXTRUDE_MM_S_4)"mm/s"
 
+// Axis
+#define AXIS_X "X"
+#define AXIS_Y "Y"
+#define AXIS_Z "Z"
+
+// Increments
+#define INCR_0 "0.1"
+#define INCR_1 "1"
+#define INCR_2 "10"
 #endif

@@ -67,11 +67,23 @@ lv_obj_t * ui_label_tool_select;
 lv_obj_t * ui_label_tool_dock;
 lv_obj_t * ui_label_tool_cal;
 
-// SCREEN: ui_ScreenToolIncr
-void ui_ScreenToolIncr_screen_init(void);
-void ui_event_ScreenToolIncr(lv_event_t * e);
-lv_obj_t * ui_ScreenToolIncr;
-lv_obj_t * ui_label_tool_todo;
+// SCREEN: ui_ScreenToolCal
+void ui_ScreenToolCal_screen_init(void);
+void ui_event_ScreenToolCal(lv_event_t * e);
+lv_obj_t * ui_ScreenToolCal;
+lv_obj_t * ui_label_tool_axis;
+lv_obj_t * ui_label_tool_axis_text;
+lv_obj_t * ui_label_tool_increment;
+lv_obj_t * ui_label_tool_increment_text;
+void ui_event_btn_tool_config(lv_event_t * e);
+lv_obj_t * ui_btn_tool_config;
+lv_obj_t * ui_img_tool_increment;
+void ui_event_btn_tool_axis_plus(lv_event_t * e);
+lv_obj_t * ui_btn_tool_axis_plus;
+lv_obj_t * ui_img_tool_axis_plus;
+void ui_event_btn_tool_axis_minus(lv_event_t * e);
+lv_obj_t * ui_btn_tool_axis_minus;
+lv_obj_t * ui_img_tool_axis_minus;
 // SCREEN: ui_ScreenMove
 void ui_ScreenMove_screen_init(void);
 void ui_event_ScreenMove(lv_event_t * e);
@@ -126,6 +138,22 @@ lv_obj_t * ui_roller_set_extrude_speed;
 void ui_event_btn_set_extrude_ok(lv_event_t * e);
 lv_obj_t * ui_btn_set_extrude_ok;
 lv_obj_t * ui_img_set_extrude_ok;
+
+// SCREEN: ui_ScreenSetToolCal
+void ui_ScreenSetToolCal_screen_init(void);
+void ui_event_ScreenSetToolCal(lv_event_t * e);
+lv_obj_t * ui_ScreenSetToolCal;
+lv_obj_t * ui_roller_set_axis;
+lv_obj_t * ui_roller_set_increment;
+void ui_event_btn_set_tool_cal_ok(lv_event_t * e);
+lv_obj_t * ui_btn_set_tool_cal_ok;
+lv_obj_t * ui_img_set_tool_cal_ok;
+void ui_event_btn_set_tool_cal_save(lv_event_t * e);
+lv_obj_t * ui_btn_set_tool_cal_save;
+lv_obj_t * ui_img_set_tool_cal_save;
+void ui_event_btn_set_tool_cal_test(lv_event_t * e);
+lv_obj_t * ui_btn_set_tool_cal_test;
+lv_obj_t * ui_label_set_tool_cal_test;
 
 // SCREEN: ui_ScreenPrinting
 void ui_ScreenPrinting_screen_init(void);
@@ -372,18 +400,41 @@ void ui_event_btn_tool_cal(lv_event_t * e)
         lv_dialog_goto_tool_cal(e);
     }
 }
-void ui_event_ScreenToolIncr(lv_event_t * e)
+void ui_event_btn_tool_config(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    // if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
-    //     lv_indev_wait_release(lv_indev_get_act());
-    //     _ui_screen_change(&ui_ScreenMainGif, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_ScreenMainGif_screen_init);
-    // }
-    // if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
-    //     lv_indev_wait_release(lv_indev_get_act());
-    //     _ui_screen_change(&ui_ScreenMove, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_ScreenMove_screen_init);
-    // }
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(&ui_ScreenSetToolCal, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_ScreenSetToolCal_screen_init);
+    }
+}
+void ui_event_btn_tool_axis_minus(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        lv_btn_tool_minus(e);
+    }
+}
+void ui_event_btn_tool_axis_plus(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        lv_btn_tool_plus(e);
+    }
+}
+void ui_event_ScreenToolCal(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_GESTURE) {
+        lv_dir_t dir = lv_indev_get_gesture_dir(lv_indev_get_act());
+        if (dir == LV_DIR_RIGHT) {
+            lv_indev_wait_release(lv_indev_get_act());
+            _ui_screen_change(&ui_ScreenTool, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_ScreenTool_screen_init);
+        }
+    }
 }
 void ui_event_ScreenMove(lv_event_t * e)
 {
@@ -499,6 +550,44 @@ void ui_event_btn_set_extrude_ok(lv_event_t * e)
     if(event_code == LV_EVENT_CLICKED) {
         lv_btn_set_extrude(e);
         _ui_screen_change(&ui_ScreenExtrude, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_ScreenExtrude_screen_init);
+    }
+}
+void ui_event_ScreenSetToolCal(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_GESTURE) {
+        lv_dir_t dir = lv_indev_get_gesture_dir(lv_indev_get_act());
+        if (dir == LV_DIR_RIGHT) {
+            lv_indev_wait_release(lv_indev_get_act());
+            _ui_screen_change(&ui_ScreenToolCal, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_ScreenToolCal_screen_init);
+        }
+    }
+}
+void ui_event_btn_set_tool_cal_ok(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        lv_btn_set_tool_calibration(e);
+        _ui_screen_change(&ui_ScreenToolCal, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_ScreenExtrude_screen_init);
+    }
+}
+void ui_event_btn_set_tool_cal_save(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        lv_dialog_save_tool_cal(e);
+    }
+}
+
+void ui_event_btn_set_tool_cal_test(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        lv_dialog_test_tool_cal(e);
     }
 }
 void ui_event_ScreenPrinting(lv_event_t * e)
@@ -688,7 +777,8 @@ void ui_init(void)
     ui_ScreenWIFIDisconnect_screen_init();
     ui_ScreenExtrude_screen_init();
     ui_ScreenTool_screen_init();
-    ui_ScreenToolIncr_screen_init();
+    ui_ScreenToolCal_screen_init();
+    ui_ScreenSetToolCal_screen_init();
     ui_ScreenMove_screen_init();
     ui_ScreenTemp_screen_init();
     ui_ScreenSetTemp_screen_init();

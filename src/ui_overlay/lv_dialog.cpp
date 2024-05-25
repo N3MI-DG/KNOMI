@@ -6,6 +6,8 @@ enum UI_DIALOG_TYPE {
     UI_DIALOG_TOOL_SELECT = 0x00,
     UI_DIALOG_TOOL_DOCK,
     UI_DIALOG_TOOL_CAL,
+    UI_DIALOG_TEST_TOOL_CAL,
+    UI_DIALOG_SAVE_TOOL_CAL,
     UI_DIALOG_ABL,
     UI_DIALOG_QGL,
     UI_DIALOG_HOME,
@@ -24,7 +26,9 @@ static lv_obj_t * dialog_previous_menu;
 static const char *dialog_title[] = {
     "Select Tool?",
     "Dock Tool?",
-    "Start Calibration?",
+    " Start Dock\nCalibration?",
+    " Test Dock\nCalibration?",
+    " Save Dock\nCalibration?",
     "Start ABL?",
     "Start QGL?",
     "Start Home?",
@@ -43,6 +47,15 @@ static void lv_dialog_goto(UI_DIALOG_TYPE type) {
     if (dialog_type != UI_DIALOG_MOONRAKER_CUSTOM) {
         lv_label_set_text(ui_label_dialog, dialog_title[dialog_type]);
     }
+
+    if (dialog_type == UI_DIALOG_TOOL_CAL || 
+        dialog_type == UI_DIALOG_TEST_TOOL_CAL || 
+        dialog_type == UI_DIALOG_SAVE_TOOL_CAL) {
+        lv_obj_set_y(ui_label_dialog, 48);
+    } else {
+        lv_obj_set_y(ui_label_dialog, 74);
+    }
+
     _ui_screen_change(&ui_ScreenDialog, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, NULL);
 }
 
@@ -62,6 +75,14 @@ void lv_dialog_goto_tool_dock(lv_event_t * e) {
 
 void lv_dialog_goto_tool_cal(lv_event_t * e) {
     lv_dialog_goto(UI_DIALOG_TOOL_CAL);
+}
+
+void lv_dialog_test_tool_cal(lv_event_t * e) {
+    lv_dialog_goto(UI_DIALOG_TEST_TOOL_CAL);
+}
+
+void lv_dialog_save_tool_cal(lv_event_t * e) {
+    lv_dialog_goto(UI_DIALOG_SAVE_TOOL_CAL);
 }
 
 void lv_dialog_goto_abl(lv_event_t * e) {
@@ -115,6 +136,12 @@ void lv_dialog_btn_ok(lv_event_t * e) {
         case UI_DIALOG_TOOL_CAL:
             moonraker.post_gcode_to_queue("TOOL_ALIGN_START");
             break;
+        case UI_DIALOG_TEST_TOOL_CAL:
+            moonraker.post_gcode_to_queue("TOOL_ALIGN_TEST");
+            break;
+        case UI_DIALOG_SAVE_TOOL_CAL:
+            moonraker.post_gcode_to_queue("TOOL_ALIGN_DONE");
+            break;
         case UI_DIALOG_ABL:
             moonraker.post_gcode_to_queue("BED_MESH_CALIBRATE");
             break;
@@ -149,8 +176,11 @@ void lv_dialog_btn_ok(lv_event_t * e) {
     }
 
     if (dialog_type == UI_DIALOG_TOOL_CAL) {
-        _ui_screen_change(&ui_ScreenToolIncr, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, NULL);
-    } else {
+        _ui_screen_change(&ui_ScreenToolCal, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, NULL);
+    } else if (dialog_type == UI_DIALOG_SAVE_TOOL_CAL) {
+        _ui_screen_change(&ui_ScreenTool, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, NULL);
+    }  
+    else {
         lv_dialog_back_to_previous_menu(e);
     }
     

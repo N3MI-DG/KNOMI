@@ -69,11 +69,23 @@ extern lv_obj_t * ui_img_tool_cal;
 extern lv_obj_t * ui_label_tool_select;
 extern lv_obj_t * ui_label_tool_dock;
 extern lv_obj_t * ui_label_tool_cal;
-// SCREEN: ui_ScreenToolIncr
-void ui_ScreenToolIncr_screen_init(void);
-void ui_event_ScreenToolIncr(lv_event_t * e);
-extern lv_obj_t * ui_ScreenToolIncr;
-extern lv_obj_t * ui_label_tool_todo;
+// SCREEN: ui_ScreenToolCal
+void ui_ScreenToolCal_screen_init(void);
+void ui_event_ScreenToolCal(lv_event_t * e);
+extern lv_obj_t * ui_ScreenToolCal;
+extern lv_obj_t * ui_label_tool_axis;
+extern lv_obj_t * ui_label_tool_axis_text;
+extern lv_obj_t * ui_label_tool_increment;
+extern lv_obj_t * ui_label_tool_increment_text;
+void ui_event_btn_tool_config(lv_event_t * e);
+extern lv_obj_t * ui_btn_tool_config;
+extern lv_obj_t * ui_img_tool_increment;
+void ui_event_btn_tool_axis_plus(lv_event_t * e);
+extern lv_obj_t * ui_btn_tool_axis_plus;
+extern lv_obj_t * ui_img_tool_axis_plus;
+void ui_event_btn_tool_axis_minus(lv_event_t * e);
+extern lv_obj_t * ui_btn_tool_axis_minus;
+extern lv_obj_t * ui_img_tool_axis_minus;
 // SCREEN: ui_ScreenMove
 void ui_ScreenMove_screen_init(void);
 void ui_event_ScreenMove(lv_event_t * e);
@@ -125,6 +137,21 @@ extern lv_obj_t * ui_roller_set_extrude_speed;
 void ui_event_btn_set_extrude_ok(lv_event_t * e);
 extern lv_obj_t * ui_btn_set_extrude_ok;
 extern lv_obj_t * ui_img_set_extrude_ok;
+// SCREEN: ui_ScreenSetToolCal
+void ui_ScreenSetToolCal_screen_init(void);
+void ui_event_ScreenSetToolCal(lv_event_t * e);
+extern lv_obj_t * ui_ScreenSetToolCal;
+extern lv_obj_t * ui_roller_set_axis;
+extern lv_obj_t * ui_roller_set_increment;
+void ui_event_btn_set_tool_cal_ok(lv_event_t * e);
+extern lv_obj_t * ui_btn_set_tool_cal_ok;
+extern lv_obj_t * ui_img_set_tool_cal_ok;
+void ui_event_btn_set_tool_cal_save(lv_event_t * e);
+extern lv_obj_t * ui_btn_set_tool_cal_save;
+extern lv_obj_t * ui_img_set_tool_cal_save;
+void ui_event_btn_set_tool_cal_test(lv_event_t * e);
+extern lv_obj_t * ui_btn_set_tool_cal_test;
+extern lv_obj_t * ui_label_set_tool_cal_test;
 // SCREEN: ui_ScreenPrinting
 void ui_ScreenPrinting_screen_init(void);
 void ui_event_ScreenPrinting(lv_event_t * e);
@@ -291,6 +318,10 @@ LV_IMG_DECLARE(ui_img_T8_png);
 LV_IMG_DECLARE(ui_img_T9_png);
 LV_IMG_DECLARE(ui_img_calibrate_png);
 LV_IMG_DECLARE(ui_img_dock_png);
+LV_IMG_DECLARE(ui_img_save_png);
+LV_IMG_DECLARE(ui_img_settings_png);
+LV_IMG_DECLARE(ui_img_up_png);
+LV_IMG_DECLARE(ui_img_down_png);
 
 LV_FONT_DECLARE(ui_font_InterSeimiBold32);
 LV_FONT_DECLARE(ui_font_InterSemiBold14);

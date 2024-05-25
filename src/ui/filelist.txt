@@ -8,7 +8,7 @@ screens/ui_ScreenExtrude.c
 screens/ui_ScreenMove.c
 screens/ui_ScreenTemp.c
 screens/ui_ScreenTool.c
-screens/ui_ScreenToolIncr.c
+screens/ui_ScreenToolCal.c
 screens/ui_ScreenSetTemp.c
 screens/ui_ScreenSetExtrude.c
 screens/ui_ScreenPrinting.c
@@ -66,6 +66,10 @@ images/ui_img_T8_png.c
 images/ui_img_T9_png.c
 images/ui_img_calibrate_png.c
 images/ui_img_dock_png.c
+images/ui_img_save_png.c
+images/ui_img_settings_png.c
+images/ui_img_up_png.c
+images/ui_img_down_png.c
 fonts/ui_font_InterSeimiBold32.c
 fonts/ui_font_InterSemiBold14.c
 fonts/ui_font_InterSemiBold16.c
