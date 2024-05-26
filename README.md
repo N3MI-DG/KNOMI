@@ -1,31 +1,31 @@
 # StealthChanger Knomi Mod
-<a href="bin/knomi1.bin">Knomi1 Binary</a>
-<a href="bin/knomi2.bin">Knomi2 Binary</a>
+<a href="https://github.com/N3MI-DG/KNOMI/raw/sc/bin/knomi1.bin">Knomi1 Binary</a><br/>
+<a href="https://github.com/N3MI-DG/KNOMI/raw/sc/bin/knomi2.bin">Knomi2 Binary</a>
 
 ### Changes from stock
-New Stealthchanger idle animation
+New Stealthchanger idle animation<br/>
 <img src="/images/sc.gif" width=250/>
 
 New print screen with live monitoring of the tools temperature.
-Swipe from left to right to adjust the nozzle temperature.
+Swipe from left to right to adjust the nozzle temperature.<br/>
 <img src="/images/print.png" width=250/>
 
 Added tool page with select, dock and calibration options.
 Dock Calibration interface.
 Up arrow for positive moves.
 Down arrow for negative moves.
-Settings button to change axis/increment or test/save position.
+Settings button to change axis/increment or test/save position.<br/>
 <img src="/images/cal1.png" width=250/>
 
 Change axis/increment via scrollbars and confirm changes via button on bottom right
-Save calibration (top), test calibration (bottom right)
+Save calibration (top), test calibration (bottom right)<br/>
 <img src="/images/cal2.png" width=250/>
 
-Tool changes are recognised and animation plays if docked or selected
+Tool changes are recognised and animation plays if docked or selected<br/>
 <img src="/images/dock.gif" width=250/>
 
 ### Changes required to config
-Tool ID has changed to Tool Number. Enter only the integer of the tool you want to pair with Knomi
+Tool ID has changed to Tool Number. Enter only the integer of the tool you want to pair with Knomi<br/>
 <img src="/images/config.png" width=500/>
 
 Add `pickup` and `dropoff` variables to `_KNOMI_STATUS` macro
