@@ -220,7 +220,8 @@ void MOONRAKER::get_status(void) {
         data.qgling = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["qgling"].as<bool>();
         data.heating_nozzle = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["heating_nozzle"].as<bool>();
         data.heating_bed = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["heating_bed"].as<bool>();
-        data.active_tool = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["active_tool"].as<int8_t>();
+        data.dropoff = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["dropoff"].as<int8_t>();
+        data.pickup = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["pickup"].as<int8_t>();
 
 #ifdef MOONRAKER_DEBUG
         Serial.print("homing: ");
@@ -233,6 +234,8 @@ void MOONRAKER::get_status(void) {
         Serial.println(data.heating_nozzle);
         Serial.print("heating_bed: ");
         Serial.println(data.heating_bed);
+        Serial.print("tool_change: ");
+        Serial.println(data.tool_change);
         Serial.print("active_tool: ");
         Serial.println(data.active_tool);
 #endif

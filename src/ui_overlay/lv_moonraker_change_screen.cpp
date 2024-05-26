@@ -2,7 +2,6 @@
 #include "knomi.h"
 #include "moonraker.h"
 #include "lv_overlay.h"
-#include "toolchanger.h"
 
 typedef enum {
     LV_MOONRAKER_STATE_IDLE = 0,
@@ -12,6 +11,7 @@ typedef enum {
     LV_MOONRAKER_STATE_NOZZLE_HEATING,
     LV_MOONRAKER_STATE_BED_HEATING,
     LV_MOONRAKER_STATE_PRINTING,
+    LV_MOONRAKER_STATE_TOOL_CHANGE,
     LV_SCREEN_STATE_INIT,
     LV_SCREEN_STATE_IDLE,
     LV_SCREEN_HEATED,
@@ -35,9 +35,13 @@ static lv_img_dsc_t ui_tool_img = ui_img_T0_png;
 
 static void lv_goto_busy_screen(lv_obj_t * screen, lv_screen_state_t state, const lv_img_dsc_t * gif) {
     if (lv_screen_state == state) return;
+
+    // dont restart animation for toolchange delay
+    if (lv_screen_state == LV_MOONRAKER_STATE_TOOL_CHANGE && state == LV_SCREEN_TC_DOCKED) return;
+    if (lv_screen_state == LV_MOONRAKER_STATE_TOOL_CHANGE && state == LV_SCREEN_TC_SELECTED) return;
+
     lv_screen_state = state;
 
-    //
     if (gif) lv_gif_set_src(ui_img_main_gif, gif);
     lv_obj_clear_flag(ui_ScreenMainGif, LV_OBJ_FLAG_CLICKABLE);
 
@@ -90,14 +94,6 @@ bool moonraker_bed_is_heating(void) {
     return false;
 }
 
-bool active_tool(void) {
-    return moonraker.data.active_tool >= 0 && knomi_config.moonraker_tool[0] == char(48 + moonraker.data.active_tool);
-}
-
-bool is_previous_tool(void) {
-    return knomi_config.moonraker_tool[0] == char(48 + previous_tool);
-}
-
 // screen change according to moonraker status
 void lv_loop_moonraker_change_screen(void) {
     static lv_screen_state_t screen_state = LV_SCREEN_STATE_INIT;
@@ -123,28 +119,35 @@ void lv_loop_moonraker_change_screen(void) {
             lv_goto_busy_screen(ui_ScreenHeatingBed, LV_MOONRAKER_STATE_BED_HEATING, NULL);
         return;
     }
-    if (moonraker.data.active_tool != previous_tool) {
-        if (active_tool()) {
-            // Knomi tool is active
-            if (!is_previous_tool()) {
-                // Tool changed to Knomi tool
-                screen_state = LV_SCREEN_TC_SELECTED;
+
+    if (moonraker.data.dropoff >= 0) {
+        if (knomi_config.moonraker_tool[0] == char(48 + moonraker.data.dropoff)) { // Knomi tool is being docked
+            lv_goto_busy_screen(ui_ScreenMainGif, LV_MOONRAKER_STATE_TOOL_CHANGE, &gif_docked);
+            screen_state = LV_SCREEN_TC_DOCKED; // continue to animate for duration after moonraker data changes
+            return;
+        }
+    }
+
+    static uint32_t pickup_delay_ms = 0;
+
+    if (moonraker.data.pickup >= 0) {
+        // Knomi tool is being selected
+        if (knomi_config.moonraker_tool[0] == char(48 + moonraker.data.pickup)) { 
+            // pickup gcode triggers early, delay animation when first triggered
+            if (!pickup_delay_ms) {
+                pickup_delay_ms = millis() + 4000;
             }
-        } else {
-            // Knomi tool is inactive
-            if (is_previous_tool()) {
-                // Knomi tool was docked
-                screen_state = LV_SCREEN_TC_DOCKED;
+
+            if (millis() > pickup_delay_ms) {
+                lv_goto_busy_screen(ui_ScreenMainGif, LV_MOONRAKER_STATE_TOOL_CHANGE, &gif_print_ok);
+                screen_state = LV_SCREEN_TC_SELECTED; // continue to animate for duration after moonraker data changes
+                return;
             }
         }
-
-        previous_tool = moonraker.data.active_tool;
-        return;
     }
 
     static lv_screen_state_t playing_next_state = LV_SCREEN_STATE_INIT;
     static uint32_t playing_ms = 0;
-    static uint32_t delay_ms = 0;
     static lv_screen_state_t playing_state;
     static const lv_img_dsc_t * playing_img;
 
@@ -177,9 +180,6 @@ void lv_loop_moonraker_change_screen(void) {
                 screen_state = LV_SCREEN_STATE_IDLE;
             return;
         case LV_SCREEN_STATE_PLAYING:
-            if (delay_ms > millis()) {
-                return;
-            }
             if (playing_ms > millis()) {
                 lv_goto_busy_screen(ui_ScreenMainGif, playing_state, playing_img);
                 return;
@@ -209,7 +209,7 @@ void lv_loop_moonraker_change_screen(void) {
             } else {
                 playing_next_state = LV_SCREEN_STATE_INIT;
             }
-            playing_ms = millis() + 4000;
+            playing_ms = millis() + 3000;
             return;
         case LV_SCREEN_TC_SELECTED:
             playing_state = LV_SCREEN_TC_SELECTED;
@@ -220,7 +220,8 @@ void lv_loop_moonraker_change_screen(void) {
             } else {
                 playing_next_state = LV_SCREEN_STATE_INIT;
             }
-            playing_ms = millis() + 4000;
+            playing_ms = millis() + 2000;
+            pickup_delay_ms = 0;
             return;
     }
 
@@ -245,7 +246,6 @@ void lv_loop_moonraker_change_screen(void) {
     }
 }
 
-// modify all temperature label
 void lv_loop_moonraker_change_screen_value(void) {
     // nozzle target
     static int16_t nozzle_target;

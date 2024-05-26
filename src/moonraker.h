@@ -23,7 +23,8 @@ typedef struct {
     bool qgling;
     bool heating_nozzle;
     bool heating_bed;
-    int8_t active_tool;
+    int8_t dropoff;
+    int8_t pickup;
 } moonraker_data_t;
 
 #define QUEUE_LEN 5
