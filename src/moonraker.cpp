@@ -215,23 +215,14 @@ void MOONRAKER::get_status(void) {
     if (!status.isEmpty()) {
         DynamicJsonDocument json_parse(status.length() * 2);
         deserializeJson(json_parse, status);
-        // Knomi
         data.homing = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["homing"].as<bool>();
         data.probing = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["probing"].as<bool>();
         data.qgling = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["qgling"].as<bool>();
         data.heating_nozzle = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["heating_nozzle"].as<bool>();
         data.heating_bed = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["heating_bed"].as<bool>();
-
-        // Toolchanger
-        data.toolchanger_status = json_parse["result"]["status"]["toolchanger"]["status"].as<String>();
-        data.active_tool = json_parse["result"]["status"]["toolchanger"]["tool_number"].as<int8_t>();
-        data.tool_count = json_parse["result"]["status"]["toolchanger"]["tool_numbers"].size(); 
-
-        for (size_t i = 0; i < data.tool_count; i++)
-            data.tool_numbers[i] = json_parse["result"]["status"]["toolchanger"]["tool_numbers"][i].as<uint8_t>();
+        data.active_tool = json_parse["result"]["status"]["gcode_macro _KNOMI_STATUS"]["active_tool"].as<int8_t>();
 
 #ifdef MOONRAKER_DEBUG
-        // Knomi
         Serial.print("homing: ");
         Serial.println(data.homing);
         Serial.print("probing: ");
@@ -242,25 +233,8 @@ void MOONRAKER::get_status(void) {
         Serial.println(data.heating_nozzle);
         Serial.print("heating_bed: ");
         Serial.println(data.heating_bed);
-
-        // Toolchanger
-        Serial.print("toolchanger_status: ");
-        Serial.println(data.toolchanger_status);
         Serial.print("active_tool: ");
         Serial.println(data.active_tool);
-        Serial.print("tool_count: ");
-        Serial.println(data.tool_count);
-        Serial.print("tool_numbers: [");
-
-        for (size_t i = 0; i < data.tool_count; i++)
-        {
-            Serial.print(data.tool_numbers[i]);
-
-            if (i != data.tool_count-1)
-                Serial.print(", ");
-        }
-        Serial.println("]");
-
 #endif
     } else {
         Serial.println("Empty: moonraker: get_status");

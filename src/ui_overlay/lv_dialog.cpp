@@ -128,10 +128,10 @@ void lv_dialog_back_to_previous_menu(lv_event_t * e) {
 void lv_dialog_btn_ok(lv_event_t * e) {
     switch (dialog_type) {
         case UI_DIALOG_TOOL_SELECT:
-            moonraker.post_gcode_to_queue("T"+knomi_config.moonraker_tool[0]);
+            moonraker.post_gcode_to_queue((String)"SELECT_TOOL%20T=" + knomi_config.moonraker_tool[0]);
             break;
         case UI_DIALOG_TOOL_DOCK:
-            moonraker.post_gcode_to_queue("UNSELECT_TOOL%20RESTORE_AXIS=XYZ");
+            moonraker.post_gcode_to_queue("UNSELECT_TOOL");
             break;
         case UI_DIALOG_TOOL_CAL:
             moonraker.post_gcode_to_queue("TOOL_ALIGN_START");

@@ -16,6 +16,7 @@ LV_IMG_DECLARE(gif_heated);
 LV_IMG_DECLARE(gif_print);
 LV_IMG_DECLARE(gif_print_ok);
 LV_IMG_DECLARE(gif_printed);
+LV_IMG_DECLARE(gif_docked);
 
 // lv_button_style.cpp
 void lv_btn_add_style(void);

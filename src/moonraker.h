@@ -16,11 +16,6 @@ typedef struct {
     float extruder_temps[CHART_SECONDS];
     float extruder_targets[CHART_SECONDS];
     uint8_t extruder_duty;
-    String toolchanger_status;
-    int8_t active_tool;
-    int8_t tool_numbers[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-    uint8_t tool_count;
-
     bool pause;
     bool printing;    // is klipper in a printing task (including printing, pausing, paused, cancelling)
     bool homing;
@@ -28,6 +23,7 @@ typedef struct {
     bool qgling;
     bool heating_nozzle;
     bool heating_bed;
+    int8_t active_tool;
 } moonraker_data_t;
 
 #define QUEUE_LEN 5
