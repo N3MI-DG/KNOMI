@@ -153,13 +153,6 @@ void lv_loop_moonraker_change_screen(void) {
 
     switch (screen_state) {
         case LV_SCREEN_STATE_INIT:
-            if (moonraker.data.printing) {
-                if (moonraker.data.bed_actual + TEMPERATURE_ERROR_RANGE > moonraker.data.bed_target &&
-                  moonraker.data.nozzle_actual + TEMPERATURE_ERROR_RANGE > moonraker.data.nozzle_target) {
-                    screen_state = LV_SCREEN_HEATED;
-                    return;
-                }
-            }
             break;
         case LV_SCREEN_STATE_IDLE:
             if (!moonraker.data.printing) {
