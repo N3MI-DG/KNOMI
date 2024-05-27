@@ -109,15 +109,15 @@ void lv_loop_moonraker_change_screen(void) {
         lv_goto_busy_screen(ui_ScreenMainGif, LV_MOONRAKER_STATE_QGLING, &gif_qgling);
         return;
     }
-    if (moonraker_nozzle_is_heating()) {
-        if (!moonraker.data.printing)
+    if (!moonraker.data.printing) {
+        if (moonraker_nozzle_is_heating()) {
             lv_goto_busy_screen(ui_ScreenHeatingNozzle, LV_MOONRAKER_STATE_NOZZLE_HEATING, NULL);
-        return;
-    }
-    if (moonraker_bed_is_heating()) {
-        if (!moonraker.data.printing)
+            return;
+        }
+        if (moonraker_bed_is_heating()) {
             lv_goto_busy_screen(ui_ScreenHeatingBed, LV_MOONRAKER_STATE_BED_HEATING, NULL);
-        return;
+            return;
+        }
     }
 
     if (moonraker.data.dropoff >= 0) {
@@ -303,7 +303,6 @@ void lv_loop_moonraker_change_screen_value(void) {
             lv_label_set_text(ui_label_extruder_target, string_buffer);
 
             // Update chart
-            int8_t padding = 2 * 100; // ℃ * 100
             uint32_t chart_max = moonraker.data.extruder_targets[0] * 100;
             uint32_t chart_min = moonraker.data.extruder_targets[0] * 100;
 
@@ -318,8 +317,8 @@ void lv_loop_moonraker_change_screen_value(void) {
                 ui_target_temps->y_points[i] = target;
             }
 
-            lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_PRIMARY_Y, chart_min+padding, chart_max-padding);
-            lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_SECONDARY_Y, chart_min+padding, chart_max-padding);
+            lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_PRIMARY_Y, chart_min+CHART_PADDING, chart_max-CHART_PADDING);
+            lv_chart_set_range(ui_chart_extruder, LV_CHART_AXIS_SECONDARY_Y, chart_min+CHART_PADDING, chart_max-CHART_PADDING);
             lv_chart_refresh(ui_chart_extruder);
 
             // Update extruder duty

@@ -4,6 +4,7 @@
 #include <WString.h>
 
 #define CHART_SECONDS 120
+#define CHART_PADDING 2 * 100 // ℃ * 100
 typedef struct {
     int16_t bed_actual;
     int16_t bed_target;
