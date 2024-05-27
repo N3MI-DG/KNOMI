@@ -195,7 +195,7 @@ void MOONRAKER::get_extruder(void) {
 
         data.extruder_temp   = data.extruder_temps[CHART_SECONDS-1];
         data.extruder_target = data.extruder_targets[CHART_SECONDS-1];
-        data.extruder_duty   = float(json_parse["result"][extruder]["powers"][1200-(CHART_SECONDS-1)].as<float>() * 100);
+        data.extruder_duty   = float(json_parse["result"][extruder]["powers"][1199].as<float>() * 100);
 
 #ifdef MOONRAKER_DEBUG
         Serial.print("extruder_temp: ");
