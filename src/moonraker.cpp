@@ -157,19 +157,14 @@ const char * path_only_gcode(const char * path)
 }
 
 void MOONRAKER::get_progress(void) {
-    String display_status = send_request("GET", "/printer/objects/query?virtual_sdcard");
+    String display_status = send_request("GET", "/printer/objects/query?display_status");
     if (!display_status.isEmpty()) {
         DynamicJsonDocument json_parse(display_status.length() * 2);
         deserializeJson(json_parse, display_status);
-        data.progress = (uint8_t)(json_parse["result"]["status"]["virtual_sdcard"]["progress"].as<double>() * 100 + 0.5f);
-        String path = json_parse["result"]["status"]["virtual_sdcard"]["file_path"].as<String>();
-        strlcpy(data.file_path, path_only_gcode(path.c_str()), sizeof(data.file_path) - 1);
-        data.file_path[sizeof(data.file_path) - 1] = 0;
+        data.progress = (uint8_t)(json_parse["result"]["status"]["display_status"]["progress"].as<double>() * 100 + 0.5f);
 #ifdef MOONRAKER_DEBUG
         Serial.print("progress: ");
         Serial.println(data.progress);
-        Serial.print("path: ");
-        Serial.println(data.file_path);
 #endif
     } else {
         Serial.println("Empty: moonraker: get_progress");
@@ -234,10 +229,10 @@ void MOONRAKER::get_status(void) {
         Serial.println(data.heating_nozzle);
         Serial.print("heating_bed: ");
         Serial.println(data.heating_bed);
-        Serial.print("tool_change: ");
-        Serial.println(data.tool_change);
-        Serial.print("active_tool: ");
-        Serial.println(data.active_tool);
+        Serial.print("dropoff: ");
+        Serial.println(data.dropoff);
+        Serial.print("pickup: ");
+        Serial.println(data.pickup);
 #endif
     } else {
         Serial.println("Empty: moonraker: get_status");
