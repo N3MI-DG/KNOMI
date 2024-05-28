@@ -206,7 +206,7 @@ void MOONRAKER::get_extruder(void) {
 }
 
 void MOONRAKER::get_status(void) {
-    String status = send_request("GET", "/printer/objects/query?gcode_macro%20_KNOMI_STATUS&toolchanger");
+    String status = send_request("GET", "/printer/objects/query?gcode_macro%20_KNOMI_STATUS");
     if (!status.isEmpty()) {
         DynamicJsonDocument json_parse(status.length() * 2);
         deserializeJson(json_parse, status);
