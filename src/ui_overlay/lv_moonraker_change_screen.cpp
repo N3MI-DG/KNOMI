@@ -169,7 +169,7 @@ void lv_loop_moonraker_change_screen(void) {
             return;
         case LV_SCREEN_PRINT:
             lv_goto_busy_screen(ui_ScreenMainGif, LV_SCREEN_PRINT, &gif_print);
-            if (moonraker.data.progress >= 1 || !moonraker.data.printing)
+            if (moonraker.data.progress >= 0.01 || !moonraker.data.printing)
                 screen_state = LV_SCREEN_STATE_IDLE;
             return;
         case LV_SCREEN_STATE_PLAYING:
@@ -278,7 +278,6 @@ void lv_loop_moonraker_change_screen_value(void) {
     static float extruder_temp;
     static float extruder_target;
     static int8_t extruder_duty;
-    static uint8_t progress;
     if (moonraker.data.printing) {
         extruder_temp = moonraker.data.extruder_temp;
         extruder_target = moonraker.data.extruder_target;
@@ -336,12 +335,81 @@ void lv_loop_moonraker_change_screen_value(void) {
             lv_obj_clear_flag(ui_label_printing_progress, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_arc_printing_progress, LV_OBJ_FLAG_HIDDEN);
 
-            if (progress != moonraker.data.progress) {
+            // Match Klipperscreen's python progress algorithm
+            // Credits: https://github.com/KlipperScreen/KlipperScreen/blob/7d6260d3ed41bfa4ae8c2f3d673dc715acd3f965/panels/job_status.py
+
+            double progress, estimated, slicer_time, filament_time, file_time = 0.0;
+            double print_duration = moonraker.data.print_duration;
+            double total_duration = moonraker.data.total_duration;
+            double speed_factor = moonraker.data.speed_factor;
+            double spdcomp = sqrt(speed_factor);
+
+            if (moonraker.data.gcode_start_byte) {
+                if ((moonraker.data.file_position - moonraker.data.gcode_start_byte) > 0) {
+                    progress = ((double)(moonraker.data.file_position - moonraker.data.gcode_start_byte) / 
+                                (double)(moonraker.data.gcode_end_byte - moonraker.data.gcode_start_byte));
+                } else {
+                    progress = 0.0 / (double)(moonraker.data.gcode_end_byte - moonraker.data.gcode_start_byte);
+                }
+            } else {
                 progress = moonraker.data.progress;
-                lv_arc_set_value(ui_arc_printing_progress, progress);
-                snprintf(string_buffer, sizeof(string_buffer), "%d%%", progress);
-                lv_label_set_text(ui_label_printing_progress, string_buffer);
             }
+
+            if (moonraker.data.estimated_time > 1) {
+                slicer_time = (double)moonraker.data.estimated_time / spdcomp;
+
+                if (print_duration < 1) {
+                    print_duration = slicer_time * progress;
+                }
+            } else if (print_duration < 1) { // No extrusion
+                print_duration = total_duration;
+            }
+
+            if (moonraker.data.filament_total >= moonraker.data.filament_used > 0) {
+                filament_time = (print_duration / (moonraker.data.filament_used / moonraker.data.filament_total));
+            }
+
+            if (progress > 0) {
+                file_time = (print_duration / progress);
+            }
+
+            if (estimated < 1) { // AUTO
+                if (slicer_time > print_duration && slicer_time > 1) {
+                    if (progress < 0.15) {
+                        // At the begining, file and filament are innacurate
+                        estimated = slicer_time;
+                    } else if (filament_time > 1 && file_time > 1) {
+                        // Weighted arithmetic mean (Slicer is the most accurate)
+                        estimated = (slicer_time * 3 + filament_time + file_time) / 5;
+                    } else if (file_time > 1) {
+                        // Weighted arithmetic mean (Slicer is the most accurate)
+                        estimated = (slicer_time * 2 + file_time) / 3;
+                    }
+                } else if (filament_time > print_duration && filament_time > 1 && file_time > 1) {
+                    estimated = (filament_time + file_time) / 2;
+                } else if (file_time > 1) {
+                    estimated = file_time;
+                }
+            }
+
+            if (estimated > 1) {
+                if ((print_duration / estimated) > 0 ){
+                    if ((print_duration / estimated) < 1) {
+                        progress = (print_duration / estimated);
+                    } else {
+                        progress = 1;
+                    }
+                } else {
+                    progress = 0;
+                }
+            }
+
+            progress = progress * 100;
+
+            lv_arc_set_value(ui_arc_printing_progress, progress);
+            snprintf(string_buffer, sizeof(string_buffer), "%d%%", progress);
+            lv_label_set_text(ui_label_printing_progress, string_buffer);
+            
         }
     }
 

@@ -143,32 +143,61 @@ void MOONRAKER::get_printer_info(void) {
     }
 }
 
-// only return gcode file name except path
-// for example:"SD:/test/123.gcode"
-// only return "123.gcode"
-const char * path_only_gcode(const char * path)
-{
-  char * name = strrchr(path, '/');
-
-  if (name != NULL)
-    return (name + 1);
-  else
-    return path;
-}
-
 void MOONRAKER::get_progress(void) {
-    String display_status = send_request("GET", "/printer/objects/query?display_status");
+    String display_status = send_request("GET", "/printer/objects/query?virtual_sdcard&print_stats&gcode_move");
     if (!display_status.isEmpty()) {
         DynamicJsonDocument json_parse(display_status.length() * 2);
         deserializeJson(json_parse, display_status);
-        data.progress = (uint8_t)(json_parse["result"]["status"]["display_status"]["progress"].as<double>() * 100 + 0.5f);
+        data.progress = json_parse["result"]["status"]["virtual_sdcard"]["progress"].as<double>();
+        data.file_position = json_parse["result"]["status"]["virtual_sdcard"]["file_position"].as<uint32_t>();
+        data.filename = json_parse["result"]["status"]["print_stats"]["filename"].as<String>();
+        data.filament_used = json_parse["result"]["status"]["print_stats"]["filament_used"].as<double>();
+        data.total_duration = json_parse["result"]["status"]["print_stats"]["total_duration"].as<double>();
+        data.print_duration = json_parse["result"]["status"]["print_stats"]["print_duration"].as<double>();
+        data.speed_factor = json_parse["result"]["status"]["gcode_move"]["speed_factor"].as<float>();
 #ifdef MOONRAKER_DEBUG
         Serial.print("progress: ");
         Serial.println(data.progress);
+        Serial.print("file_position: ");
+        Serial.println(data.file_position);
+        Serial.print("filename: ");
+        Serial.println(data.filename);
+        Serial.print("filament_used: ");
+        Serial.println(data.filament_used);
+        Serial.print("total_duration: ");
+        Serial.println(data.total_duration);
+        Serial.print("print_duration: ");
+        Serial.println(data.print_duration);
+        Serial.print("speed_factor: ");
+        Serial.println(data.speed_factor);
+#endif
+    } else {
+        Serial.println("Empty: moonraker: get_progress");
+        return;
+    }
+
+    display_status = send_request("GET", "/server/files/metadata?filename="+data.filename);
+    if (!display_status.isEmpty()) {
+        DynamicJsonDocument json_parse(display_status.length() * 2);
+        deserializeJson(json_parse, display_status);
+        data.gcode_start_byte = json_parse["result"]["gcode_start_byte"].as<uint32_t>();
+        data.gcode_end_byte = json_parse["result"]["gcode_end_byte"].as<uint32_t>();
+        data.estimated_time = json_parse["result"]["estimated_time"].as<uint32_t>();
+        data.filament_total = json_parse["result"]["filament_total"].as<double>();
+#ifdef MOONRAKER_DEBUG
+        Serial.print("gcode_start_byte: ");
+        Serial.println(data.gcode_start_byte);
+        Serial.print("gcode_end_byte: ");
+        Serial.println(data.gcode_end_byte);
+        Serial.print("estimated_time: ");
+        Serial.println(data.estimated_time);
+        Serial.print("filament_total: ");
+        Serial.println(data.filament_total);
 #endif
     } else {
         Serial.println("Empty: moonraker: get_progress");
     }
+
 }
 
 void MOONRAKER::get_extruder(void) {

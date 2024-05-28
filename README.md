@@ -24,6 +24,9 @@ Save calibration (top), test calibration (bottom right)<br/>
 Tool changes are recognised and animation plays if docked or selected<br/>
 <img src="/images/dock.gif" width=250/>
 
+Knomi devices paired to inactive tool heads display print progress similar to stock while printing. 
+The same algorithm as KlipperScreen is now used to determine print progress.
+
 ### Changes required to config
 Tool ID has changed to Tool Number. Enter only the integer of the tool you want to pair with Knomi<br/>
 <img src="/images/config.png" width=500/>
