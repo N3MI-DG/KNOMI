@@ -149,7 +149,7 @@ void MOONRAKER::get_progress(void) {
         DynamicJsonDocument json_parse(display_status.length() * 2);
         deserializeJson(json_parse, display_status);
         data.progress = json_parse["result"]["status"]["virtual_sdcard"]["progress"].as<double>();
-        data.file_position = json_parse["result"]["status"]["virtual_sdcard"]["file_position"].as<uint32_t>();
+        data.file_position = json_parse["result"]["status"]["virtual_sdcard"]["file_position"].as<double>();
         data.filename = json_parse["result"]["status"]["print_stats"]["filename"].as<String>();
         data.filament_used = json_parse["result"]["status"]["print_stats"]["filament_used"].as<double>();
         data.total_duration = json_parse["result"]["status"]["print_stats"]["total_duration"].as<double>();
@@ -180,9 +180,9 @@ void MOONRAKER::get_progress(void) {
     if (!display_status.isEmpty()) {
         DynamicJsonDocument json_parse(display_status.length() * 2);
         deserializeJson(json_parse, display_status);
-        data.gcode_start_byte = json_parse["result"]["gcode_start_byte"].as<uint32_t>();
-        data.gcode_end_byte = json_parse["result"]["gcode_end_byte"].as<uint32_t>();
-        data.estimated_time = json_parse["result"]["estimated_time"].as<uint32_t>();
+        data.gcode_start_byte = json_parse["result"]["gcode_start_byte"].as<double>();
+        data.gcode_end_byte = json_parse["result"]["gcode_end_byte"].as<double>();
+        data.estimated_time = json_parse["result"]["estimated_time"].as<double>();
         data.filament_total = json_parse["result"]["filament_total"].as<double>();
 #ifdef MOONRAKER_DEBUG
         Serial.print("gcode_start_byte: ");

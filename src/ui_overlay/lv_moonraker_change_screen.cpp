@@ -346,17 +346,17 @@ void lv_loop_moonraker_change_screen_value(void) {
 
             if (moonraker.data.gcode_start_byte) {
                 if ((moonraker.data.file_position - moonraker.data.gcode_start_byte) > 0) {
-                    progress = ((double)(moonraker.data.file_position - moonraker.data.gcode_start_byte) / 
-                                (double)(moonraker.data.gcode_end_byte - moonraker.data.gcode_start_byte));
+                    progress = ((moonraker.data.file_position - moonraker.data.gcode_start_byte) / 
+                                (moonraker.data.gcode_end_byte - moonraker.data.gcode_start_byte));
                 } else {
-                    progress = 0.0 / (double)(moonraker.data.gcode_end_byte - moonraker.data.gcode_start_byte);
+                    progress = 0.0 / (moonraker.data.gcode_end_byte - moonraker.data.gcode_start_byte);
                 }
             } else {
                 progress = moonraker.data.progress;
             }
 
             if (moonraker.data.estimated_time > 1) {
-                slicer_time = (double)moonraker.data.estimated_time / spdcomp;
+                slicer_time = moonraker.data.estimated_time / spdcomp;
 
                 if (print_duration < 1) {
                     print_duration = slicer_time * progress;
@@ -365,8 +365,8 @@ void lv_loop_moonraker_change_screen_value(void) {
                 print_duration = total_duration;
             }
 
-            if (moonraker.data.filament_total >= moonraker.data.filament_used > 0) {
-                filament_time = (print_duration / (moonraker.data.filament_used / moonraker.data.filament_total));
+            if (moonraker.data.filament_used <= moonraker.data.filament_total && moonraker.data.filament_used > 0) {
+                filament_time = print_duration / (moonraker.data.filament_used / moonraker.data.filament_total);
             }
 
             if (progress > 0) {
@@ -405,9 +405,10 @@ void lv_loop_moonraker_change_screen_value(void) {
             }
 
             progress = progress * 100;
+            uint8_t disp_progress = progress;
 
-            lv_arc_set_value(ui_arc_printing_progress, progress);
-            snprintf(string_buffer, sizeof(string_buffer), "%d%%", progress);
+            lv_arc_set_value(ui_arc_printing_progress, disp_progress);
+            snprintf(string_buffer, sizeof(string_buffer), "%d%%", disp_progress);
             lv_label_set_text(ui_label_printing_progress, string_buffer);
             
         }
