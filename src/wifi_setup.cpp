@@ -285,7 +285,8 @@ restart:
                     break;
                 }
                 Serial.print(".");
-                delay(100);
+                uint8_t tn = (uint8_t) knomi_config.moonraker_tool[0];
+                delay(100*(tn+1));
             }
             if (wifi_status != WIFI_STATUS_CONNECTED) {
                 Serial.println("sta connect failed!!!");
