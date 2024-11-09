@@ -41,6 +41,7 @@ variable_heating_nozzle: False
 variable_heating_bed: False
 variable_dropoff: -1
 variable_pickup: -1
+gcode:
 ```
 
 Add `_KNOMI_STATUS ` changes to `after_change_gcode`, `dropoff_gcode` and `pickup_gcode`.
